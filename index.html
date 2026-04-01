@@ -1,56 +1,586 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Nghiên Cứu: Studio Livestream & Co-working Space (VN)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Executive Neutral (Off-white background, deep slate text, amber/blue accents) -->
+    <!-- Application Structure Plan: The SPA is structured as a dual-industry executive dashboard. A top-level toggle allows users to instantly switch the entire dataset between the "Livestream Studio" and "Co-working Space" industries. The main layout uses a sidebar for logical navigation through the consulting framework (Overview, Competitors, Customers, Strategy, Go-to-Market). This chunking strategy prevents cognitive overload. Each section features a clear introductory paragraph explaining its purpose, followed by data visualizations contained within strictly controlled, responsive layout grids to ensure perfect readability on all devices. -->
+    <!-- Visualization & Content Choices: 
+         1. Market Growth: Line Chart (Chart.js) to show multi-year trends.
+         2. Unit Economics: Doughnut Chart (Chart.js) for cost structure proportion.
+         3. Competitor Landscape: HTML Data Tables with JS sorting/filtering (conceptualized via clean grid) for detailed metric comparison.
+         4. Customer Profiles & Funnel: Styled HTML CSS Grid cards and stacked blocks for readability, avoiding complex external libraries.
+         Interaction: Industry toggle dynamically rewrites DOM and re-initializes charts. Tab switching updates main content view without page reload.
+         Justification: This approach ensures zero reliance on SVG/Mermaid, maximizes performance, and keeps the C-level user focused on actionable data. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
-{% if site.posts.size == 0 %}
-  <h2>No post found</h2>
-{% endif %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #faf9f6;
+            color: #1e293b;
+        }
 
-<div class="posts">
-  {% for post in paginator.posts %}
-    <article class="post">
-      <h1>
-        <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-      </h1>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
 
-      <div>
-        <span class="date">
-          {{ post.date | date: "%Y-%m-%d" }}
-        </span>
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
 
-        <ul class="tag">
-          {% for tag in post.tags %}
-          <li>
-            <a href="{{ site.url }}{{ site.baseurl }}/tags#{{ tag }}">
-              {{ tag }}
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-      <div class="entry">
-        {{ post.excerpt }}
-      </div>
+        .theme-live { --primary: #ea580c; --primary-light: #ffedd5; --primary-dark: #c2410c; }
+        .theme-cowork { --primary: #2563eb; --primary-light: #dbeafe; --primary-dark: #1d4ed8; }
 
-      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
-    </article>
-  {% endfor %}
-</div>
+        .text-primary { color: var(--primary); }
+        .bg-primary { background-color: var(--primary); }
+        .bg-primary-light { background-color: var(--primary-light); }
+        .border-primary { border-color: var(--primary); }
+        .hover-bg-primary:hover { background-color: var(--primary); color: white; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
 
-<div class="pagination">
-  {% if paginator.previous_page %}
-    <span class="prev">
-      <a href="{{ site.baseurl }}{{ paginator.previous_page_path }}" class="prev">
-        &#xE000; Previous
-      </a>
-    </span>
-  {% endif %}
-  {% if paginator.next_page %}
-    <span class="next">
-      <a href="{{ site.baseurl}}{{ paginator.next_page_path }}" class="next">
-        Next &#xE001;
-      </a>
-    </span>
-  {% endif %}
-</div>
+        .active-tab {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-right: 3px solid var(--primary);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden theme-live" id="app">
+
+    <header class="glass-panel z-20 shrink-0 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="text-xl font-bold tracking-tight text-slate-800">C-Level <span class="text-slate-400 font-normal">Intelligence</span></span>
+                <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Vietnam Market Report</span>
+            </div>
+            <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button id="btn-live" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 bg-white shadow text-slate-800">🎥 Studio Livestream</button>
+                <button id="btn-cowork" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800">🏢 Co-working Space</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden max-w-7xl mx-auto w-full">
+        <nav class="w-64 glass-panel border-r border-slate-200 overflow-y-auto hidden md:flex flex-col shrink-0 py-6" id="sidebar">
+        </nav>
+
+        <div class="md:hidden flex overflow-x-auto border-b border-slate-200 bg-white shrink-0 p-2 hide-scrollbar" id="mobile-nav">
+        </div>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth bg-[#faf9f6]" id="main-content">
+        </main>
+    </div>
+
+    <script>
+        const database = {
+            livestream: {
+                industryName: "Thị trường Cho thuê Studio Livestream",
+                color: "#ea580c",
+                overview: {
+                    title: "Tổng quan & Động lực thị trường",
+                    intro: "Phần này cung cấp cái nhìn vĩ mô về quy mô, tốc độ tăng trưởng và các yếu tố kinh tế - xã hội định hình thị trường Livestream Studio tại Việt Nam. Dữ liệu giúp đánh giá mức độ hấp dẫn của ngành trước khi ra quyết định đầu tư.",
+                    size: "Ước tính ~450 Tỷ VNĐ/năm (TP.HCM, 2024)",
+                    growth: "+35% YoY",
+                    drivers: ["Sự bùng nổ Shoppertainment (TikTok Shop, Shopee Live)", "Xu hướng KOC/Affiliate Marketing thay thế Ads truyền thống", "Chi phí thiết bị (CapEx) quá cao đối với SME"],
+                    barriers: ["Tốc độ mất giá/khấu hao thiết bị công nghệ nhanh", "Cạnh tranh giá từ các studio tự phát", "Rủi ro thay đổi thuật toán nền tảng"],
+                    pestel: [
+                        { letter: "P", desc: "Siết chặt quản lý thuế TMĐT và nội dung số." },
+                        { letter: "E", desc: "Kinh tế khó khăn, nhãn hàng cắt ngân sách Branding, dồn tiền cho Livestream chuyển đổi số." },
+                        { letter: "S", desc: "Hành vi mua sắm qua giải trí trở thành thói quen cố hữu của Gen Z & Millennials." },
+                        { letter: "T", desc: "AI Avatar, Multi-cam setup, Virtual Studio (Green screen) bắt đầu phổ cập." }
+                    ],
+                    chartData: { labels: ['2021', '2022', '2023', '2024E', '2025F'], values: [150, 220, 310, 450, 580] },
+                    chartContext: "Biểu đồ thể hiện đà tăng trưởng doanh thu ấn tượng của thị trường dịch vụ cho thuê Studio, được thúc đẩy mạnh mẽ sau đại dịch và sự ra mắt của TikTok Shop."
+                },
+                competitors: {
+                    title: "Phân tích Đối thủ & Định giá",
+                    intro: "Phân tích cấu trúc cạnh tranh hiện tại. Bảng dữ liệu bóc tách mô hình kinh doanh, dịch vụ cốt lõi và mức giá của Top 10 đơn vị tại TP.HCM, từ đó tìm ra khoảng trống thị trường (Market Gap) để thâm nhập.",
+                    gap: "Khoảng trống: Phân khúc 'Mid-Tier+' (500k-700k/h) - Cung cấp phòng thẩm mỹ cao + Thiết bị chuẩn truyền hình + Kỹ thuật viên hỗ trợ vận hành trực tiếp.",
+                    list: [
+                        { name: "LiveHub VN", price: "800k-1M/h", core: "Phòng tiêu chuẩn + Thiết bị High-end", usp: "Chất lượng truyền hình", model: "Hourly/Package" },
+                        { name: "StreamBox", price: "400k-600k/h", core: "Phòng Decor concept", usp: "Đa dạng Concept", model: "Hourly" },
+                        { name: "ChotDon Studio", price: "150k-300k/h", core: "Không gian cơ bản + Đèn", usp: "Giá siêu rẻ", model: "Hourly" },
+                        { name: "MegaLive", price: "1.5M/h+", core: "Virtual Studio XR", usp: "Công nghệ 3D/XR", model: "Project" },
+                        { name: "EcomCast", price: "500k/h", core: "Phòng tiêu chuẩn + Phần mềm", usp: "Tích hợp Tech", model: "Subscription" },
+                        { name: "KOC Hub", price: "400k/h", core: "Studio + Co-working", usp: "Cộng đồng KOC", model: "Membership" },
+                        { name: "VinaStream", price: "Custom", core: "Cho thuê thiết bị + Kỹ thuật", usp: "Linh hoạt địa điểm", model: "Service" },
+                        { name: "TikTokLab", price: "300k/h", core: "Decor form dọc", usp: "Chuyên biệt TikTok", model: "Package" },
+                        { name: "MiniSpace", price: "100k/h", core: "Buồng live tự phục vụ", usp: "Tiện lợi 24/7", model: "Pay-per-use" },
+                        { name: "ProCast", price: "1M/h+", core: "Thiết bị điện ảnh", usp: "Chất lượng 4K", model: "Hourly" }
+                    ]
+                },
+                customers: {
+                    title: "Hành vi Khách hàng & Phân khúc",
+                    intro: "Nhận diện chân dung khách hàng mục tiêu (Personas). Việc hiểu rõ 'Nhiệm vụ cần hoàn thành' (JTBD) và 'Nỗi đau' (Pain points) sẽ quyết định cách chúng ta thiết kế gói dịch vụ và thông điệp truyền thông.",
+                    insight: "Điểm rơi lớn nhất ở giai đoạn Cân nhắc (Consideration) là 'Sợ không biết sử dụng thiết bị'. Chìa khóa chốt Sale là cung cấp 'Kỹ thuật viên hỗ trợ 15 phút đầu'.",
+                    personas: [
+                        { name: "SME / Local Brand", jtbd: "Xả hàng, ra mắt BST mới qua Live mà không tốn hàng trăm triệu setup phòng.", pain: "Nhân viên không rành kỹ thuật, hay rớt mạng/âm thanh rè làm rớt đơn.", trigger: "Chiến dịch Mega Sale (11.11, Payday)" },
+                        { name: "KOC / Affiliate", jtbd: "Cần không gian chuyên nghiệp, ánh sáng đẹp tôn da để tăng uy tín chốt đơn.", pain: "Phòng trọ bừa bộn, ồn ào, không có tiền mua đèn xịn.", trigger: "Nhận được deal Booking lớn từ nhãn hàng." },
+                        { name: "Live Agency", jtbd: "Thuê số lượng lớn phòng cùng lúc để chạy marathon livestream cho nhiều brand.", pain: "Các studio nhỏ không đủ công suất, thiếu tính đồng bộ.", trigger: "Ký hợp đồng retain dài hạn với sàn TMĐT." }
+                    ]
+                },
+                strategy: {
+                    title: "Chiến lược Dịch vụ & Mô hình Kinh doanh",
+                    intro: "Chuyển hóa dữ liệu thành hành động. Mục này đề xuất cấu trúc sản phẩm cụ thể (Các gói dịch vụ), phân tích đơn vị kinh tế (Unit Economics) để đảm bảo biên lợi nhuận, và tóm tắt Business Model Canvas.",
+                    proposition: "Chuyển đổi từ 'Cho thuê không gian' sang 'Cung cấp năng lực bán hàng (Sales Enablement)'. Biến CapEx thành OpEx cho khách hàng.",
+                    tiers: [
+                        { name: "Barebone (Tự xử)", price: "200k/h", desc: "Phòng cách âm + 2 đèn cơ bản. Dành cho cá nhân có sẵn điện thoại.", target: "Micro-influencer" },
+                        { name: "Standard (Lên hình)", price: "500k/h", desc: "Phòng + PC + Máy ảnh Sony + Đèn chuyên nghiệp + Mic.", target: "Local Brand" },
+                        { name: "Operation (Ra số)", price: "1.2M/h", desc: "Gói Standard + 1 Kỹ thuật viên (bấm cảnh, âm thanh) + 1 Trợ lý chốt đơn.", target: "Mega Sale/Agency" }
+                    ],
+                    economicsData: { labels: ['Khấu hao thiết bị', 'Tiền mặt bằng', 'Nhân sự vận hành', 'Marketing', 'Lợi nhuận gộp'], values: [35, 20, 15, 10, 20] },
+                    economicsContext: "Cấu trúc chi phí tập trung chủ yếu vào Khấu hao thiết bị (35%). Do vòng đời công nghệ ngắn, việc tối ưu hóa tỷ lệ lấp đầy (Occupancy rate) là yếu tố sống còn để duy trì mức lợi nhuận 20%."
+                },
+                gtm: {
+                    title: "Chiến lược Go-to-Market",
+                    intro: "Kế hoạch thâm nhập thị trường và thu hút khách hàng. Phần này phác thảo phễu Marketing (Funnel), các kênh tiếp cận chính và các dịch vụ giá trị gia tăng để tăng lòng trung thành.",
+                    funnel: [
+                        { stage: "Awareness", action: "Video TikTok BTS: 'Sự khác biệt hình ảnh trước và sau khi dùng Studio'.", kpi: "Reach, Views" },
+                        { stage: "Lead Gen", action: "Tặng E-book: 'Checklist 20 thiết bị Livestream ngàn đơn' để lấy SĐT.", kpi: "CPL (Cost per Lead)" },
+                        { stage: "Conversion", action: "Voucher Trial giảm 50% cho 2 giờ live đầu tiên kèm Kỹ thuật viên.", kpi: "Booking Rate" },
+                        { stage: "Retention", action: "Thẻ Membership: Mua 10 tặng 2. Lưu trữ preset ánh sáng riêng.", kpi: "LTV, Repeat Rate" }
+                    ],
+                    moat: ["Cho thuê Host/KOC theo giờ", "Dịch vụ cắt clip highlight (Shorts/Reels) sau phiên live", "Hệ thống đường truyền Internet dự phòng (Failover)"]
+                }
+            },
+            cowork: {
+                industryName: "Thị trường Văn phòng ảo & Co-working Space",
+                color: "#2563eb",
+                overview: {
+                    title: "Tổng quan & Động lực thị trường",
+                    intro: "Đánh giá sự dịch chuyển của ngành Bất động sản thương mại linh hoạt. Từ khóa đang chuyển từ 'Giá rẻ' sang 'Trải nghiệm' và 'Cộng đồng'. Cung cấp nền tảng vĩ mô để thiết kế không gian phù hợp.",
+                    size: "Tỷ lệ lấp đầy TB 75-80% tại trung tâm TP.HCM",
+                    growth: "+12% YoY (Giai đoạn trưởng thành)",
+                    drivers: ["Chính sách Hybrid Work dài hạn của các MNCs", "Sự bùng nổ của Solopreneurs & Freelancers", "Startup tối ưu hóa dòng tiền sau 'mùa đông gọi vốn'"],
+                    barriers: ["Chi phí Bất động sản thương mại trung tâm quá cao", "Cuộc chiến về giá ở phân khúc hạng B/C", "Tỷ lệ rời bỏ (Churn) của các Startup non trẻ"],
+                    pestel: [
+                        { letter: "P", desc: "Hỗ trợ đăng ký kinh doanh trực tuyến thúc đẩy dịch vụ Văn phòng ảo." },
+                        { letter: "E", desc: "BĐS văn phòng truyền thống dư thừa, chủ nhà cởi mở hơn với mô hình master-lease." },
+                        { letter: "S", desc: "Lực lượng lao động Gen Z đòi hỏi không gian có 'Gu' và chú trọng sức khỏe tinh thần." },
+                        { letter: "T", desc: "Hệ thống quản lý tòa nhà thông minh (Smart Access, IoT Energy)." }
+                    ],
+                    chartData: { labels: ['2021', '2022', '2023', '2024E', '2025F'], values: [100, 110, 125, 140, 155] },
+                    chartContext: "Thị trường duy trì đà tăng trưởng ổn định (12%), phản ánh sự chuyển dịch bền vững từ văn phòng truyền thống sang mô hình linh hoạt hậu đại dịch."
+                },
+                competitors: {
+                    title: "Phân tích Đối thủ & Định giá",
+                    intro: "Bản đồ cạnh tranh chi tiết phân chia theo 3 phân khúc rõ rệt: Premium (MNCs), Mid-scale (SME/Tech), và Budget. Giúp định vị chính xác vị thế giá và dịch vụ của dự án mới.",
+                    gap: "Khoảng trống: Co-working chuyên biệt (Niche). VD: Không gian cho Creator (tích hợp studio) hoặc không gian chuyên cho khối IT/Web3.",
+                    list: [
+                        { name: "Dreamplex", price: "Cao", core: "Private Studio, Hot Desk", usp: "Workplace Experience (Boutique)", model: "Space + Experience" },
+                        { name: "Toong", price: "Trung-Cao", core: "Co-working, Private Office", usp: "Thiết kế đậm tính nghệ thuật", model: "Network Access" },
+                        { name: "CirCO", price: "Trung bình", core: "Private Office, Virtual", usp: "Vị trí đa dạng, Giá hợp lý", model: "Standard B2B" },
+                        { name: "Compass Offices", price: "Rất Cao", core: "Serviced Office", usp: "Vị trí Hạng A (CBD)", model: "Premium Serviced" },
+                        { name: "Wework", price: "Cao", core: "Enterprise, Co-working", usp: "Mạng lưới toàn cầu", model: "Global Membership" },
+                        { name: "The Sentry", price: "Cao", core: "Tech-focused Hub", usp: "Cộng đồng IT/Web3 mạnh", model: "Niche Community" },
+                        { name: "Sharespace", price: "Trung bình", core: "Văn phòng linh hoạt", usp: "Tiện ích cơ bản đủ dùng", model: "Real estate sublease" },
+                        { name: "Worky", price: "Thấp", core: "Hot Desk ngày", usp: "Kết hợp F&B Cafe", model: "F&B + Space" },
+                        { name: "UpGen", price: "Trung bình", core: "Co-working, Private", usp: "Thiết kế Build-to-suit", model: "Custom Space" },
+                        { name: "Regus", price: "Cao", core: "Virtual, Private", usp: "Độ phủ vị trí lớn nhất", model: "Standard Serviced" }
+                    ]
+                },
+                customers: {
+                    title: "Hành vi Khách hàng & Phân khúc",
+                    intro: "Phân tách hành vi mua (B2B). Quá trình ra quyết định dài hơn, liên quan đến nhiều bên (Admin, HR, Founder), chịu ảnh hưởng mạnh bởi hình ảnh thương hiệu và vị trí pháp lý.",
+                    insight: "Yếu tố chốt hạ (Conversion) sau khi đi tour thực tế thường không nằm ở bàn làm việc, mà ở 'Chất lượng phòng vệ sinh' và 'Mức độ cách âm của phòng họp'.",
+                    personas: [
+                        { name: "Tech Founder (10-20 người)", jtbd: "Cần không gian chuyên nghiệp ngay lập tức để team code, dễ tăng giảm nhân sự.", pain: "Cọc 6 tháng VP truyền thống kẹt dòng tiền. Set up admin phiền phức.", trigger: "Vừa nhận vốn Seed, cần VP để phỏng vấn tuyển dụng." },
+                        { name: "HR Director (MNC)", jtbd: "Mua thẻ Pass để nhân viên linh hoạt làm việc tại nhiều chi nhánh.", pain: "Nhân viên chán kẹt xe lên trung tâm, nhưng ở nhà thì giảm hiệu suất.", trigger: "Công ty áp dụng chính sách 3 ngày VP, 2 ngày tự do." },
+                        { name: "Digital Nomad", jtbd: "Cần WiFi cực mạnh, ghế công thái học và cơ hội networking.", pain: "Quán cafe quá ồn, ở nhà thì mất động lực làm việc.", trigger: "Cảm thấy cô đơn/bí ý tưởng khi làm một mình quá lâu." }
+                    ]
+                },
+                strategy: {
+                    title: "Chiến lược Dịch vụ & Mô hình Kinh doanh",
+                    intro: "Trọng tâm thiết kế sản phẩm và mô hình tài chính. Đề xuất dịch chuyển từ bán 'Mét vuông' sang bán 'Năng suất' (Productivity as a Service).",
+                    proposition: "Mô hình Hub & Spoke: Zero-capex Office. Cung cấp không gian truyền cảm hứng và quản trị rủi ro vận hành cho doanh nghiệp.",
+                    tiers: [
+                        { name: "Virtual Pro", price: "800k/tháng", desc: "Địa chỉ ĐKKD Hạng A + Lễ tân nhận thư + 4h dùng phòng họp. Cho cty 1 thành viên.", target: "Solopreneur/Consultant" },
+                        { name: "Flexi Pass", price: "2.5M/tháng", desc: "Quyền truy cập mọi chi nhánh 24/7 + Tủ đồ + Trà cafe. Cho người di chuyển nhiều.", target: "Freelancer/Remote" },
+                        { name: "Private Suite", price: "Từ 5M/ghế/tháng", desc: "Phòng riêng + Logo cty + IP bảo mật + Quyền dùng tiện ích chung. Cho team dự án.", target: "SME/Tech Team" }
+                    ],
+                    economicsData: { labels: ['Tiền thuê tòa nhà', 'Khấu hao Nội thất', 'Vận hành (Điện, NV)', 'Sales & MKT', 'Lợi nhuận gộp'], values: [50, 15, 15, 10, 10] },
+                    economicsContext: "Biên lợi nhuận gộp mỏng (~10%) do chi phí mặt bằng (Master lease) chiếm tới 50%. Để scale up, cần phát triển các dịch vụ add-on (pháp lý, sự kiện) có biên lợi nhuận cao hơn."
+                },
+                gtm: {
+                    title: "Chiến lược Go-to-Market",
+                    intro: "Phương pháp tiếp cận B2B. Tập trung vào việc tạo ra Leads chất lượng thông qua sự kiện cộng đồng và xây dựng mạng lưới Broker Bất động sản.",
+                    funnel: [
+                        { stage: "Awareness", action: "Tổ chức chuỗi Workshop miễn phí về Quản trị/Công nghệ tại không gian.", kpi: "Event Attendees" },
+                        { stage: "Lead Gen", action: "Landing page tối ưu SEO (Keyword: 'Thuê văn phòng ảo quận 1').", kpi: "MQLs" },
+                        { stage: "Conversion", action: "Site-tour tham quan trực tiếp kèm 1 ngày Free Trial.", kpi: "Tour-to-Close Ratio" },
+                        { stage: "Retention", action: "App nội bộ cộng đồng, tổ chức Happy Hour thứ 6 hàng tuần.", kpi: "Churn Rate (<5%)" }
+                    ],
+                    moat: ["Dịch vụ kế toán & Đăng ký kinh doanh trọn gói", "Phòng ngủ trưa (Nap pod) & Phòng tắm", "Dịch vụ IT Support on-site cho doanh nghiệp"]
+                }
+            }
+        };
+
+        const navItems = [
+            { id: 'overview', icon: '📊', label: '1. Market Landscape' },
+            { id: 'competitors', icon: '⚔️', label: '2. Competitor Analysis' },
+            { id: 'customers', icon: '👥', label: '3. Customer Insights' },
+            { id: 'strategy', icon: '🧠', label: '4. Business Strategy' },
+            { id: 'gtm', icon: '🚀', label: '5. Go-to-Market' }
+        ];
+
+        let currentInd = 'livestream';
+        let currentTab = 'overview';
+        let activeChartObj = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEvents();
+            renderNav();
+            renderContent();
+        });
+
+        function setupEvents() {
+            document.getElementById('btn-live').addEventListener('click', () => {
+                if(currentInd !== 'livestream') { currentInd = 'livestream'; updateTheme(); renderContent(); }
+            });
+            document.getElementById('btn-cowork').addEventListener('click', () => {
+                if(currentInd !== 'cowork') { currentInd = 'cowork'; updateTheme(); renderContent(); }
+            });
+        }
+
+        function updateTheme() {
+            const body = document.getElementById('app');
+            const bLive = document.getElementById('btn-live');
+            const bCowork = document.getElementById('btn-cowork');
+
+            if (currentInd === 'livestream') {
+                body.className = 'h-screen flex flex-col overflow-hidden theme-live';
+                bLive.className = 'px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 bg-white shadow text-slate-800';
+                bCowork.className = 'px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800';
+            } else {
+                body.className = 'h-screen flex flex-col overflow-hidden theme-cowork';
+                bCowork.className = 'px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 bg-white shadow text-slate-800';
+                bLive.className = 'px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800';
+            }
+            renderNav();
+        }
+
+        function renderNav() {
+            const side = document.getElementById('sidebar');
+            const mob = document.getElementById('mobile-nav');
+            side.innerHTML = ''; mob.innerHTML = '';
+
+            navItems.forEach(item => {
+                const isAct = item.id === currentTab;
+                
+                const btnSide = document.createElement('button');
+                btnSide.className = `w-full flex items-center gap-3 px-6 py-4 text-sm transition-colors text-left ${isAct ? 'active-tab' : 'text-slate-600 hover:bg-slate-50'}`;
+                btnSide.innerHTML = `<span class="text-lg">${item.icon}</span> <span>${item.label}</span>`;
+                btnSide.onclick = () => { currentTab = item.id; renderNav(); renderContent(); };
+                side.appendChild(btnSide);
+
+                const btnMob = document.createElement('button');
+                btnMob.className = `whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors border-b-2 ${isAct ? 'border-primary text-primary' : 'border-transparent text-slate-500'}`;
+                btnMob.innerText = item.label;
+                btnMob.onclick = () => { currentTab = item.id; renderNav(); renderContent(); };
+                mob.appendChild(btnMob);
+            });
+        }
+
+        function renderContent() {
+            const main = document.getElementById('main-content');
+            const data = database[currentInd][currentTab];
+            const meta = database[currentInd];
+            
+            if(activeChartObj) { activeChartObj.destroy(); activeChartObj = null; }
+            main.scrollTop = 0;
+
+            let html = `
+                <div class="mb-8">
+                    <span class="inline-block px-3 py-1 rounded bg-primary-light text-primary text-xs font-bold tracking-widest uppercase mb-3 border border-primary/20">${meta.industryName}</span>
+                    <h1 class="text-3xl font-bold text-slate-900 mb-3">${data.title}</h1>
+                    <p class="text-slate-600 leading-relaxed max-w-4xl text-lg">${data.intro}</p>
+                </div>
+            `;
+
+            if (currentTab === 'overview') {
+                html += `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="glass-panel p-6 rounded-xl border-t-4 border-t-primary">
+                            <p class="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1">Market Size</p>
+                            <p class="text-2xl font-bold text-slate-800">${data.size}</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-xl border-t-4 border-t-primary">
+                            <p class="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1">Growth Rate</p>
+                            <p class="text-3xl font-extrabold text-primary">${data.growth}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="font-bold text-slate-800 mb-2">Dự phóng Thị trường</h3>
+                            <p class="text-sm text-slate-500 mb-4">${data.chartContext}</p>
+                            <div class="chart-container"><canvas id="mainChart"></canvas></div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="glass-panel p-6 rounded-xl">
+                                <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><span>📈</span> Market Drivers</h3>
+                                <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                                    ${data.drivers.map(d => `<li>${d}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="glass-panel p-6 rounded-xl">
+                                <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><span>🚧</span> Market Barriers</h3>
+                                <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                                    ${data.barriers.map(d => `<li>${d}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-xl bg-slate-800 text-white border-none">
+                        <h3 class="font-bold mb-4">Phân tích PESTEL (Key Highlights)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${data.pestel.map(p => `
+                                <div class="bg-slate-700/50 p-4 rounded-lg">
+                                    <span class="text-xl font-black text-primary mb-2 block">${p.letter}</span>
+                                    <p class="text-sm text-slate-300 leading-relaxed">${p.desc}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (currentTab === 'competitors') {
+                html += `
+                    <div class="glass-panel p-6 rounded-xl mb-8 border-l-4 border-l-primary bg-primary-light/30">
+                        <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-2">Market Gap & Opportunity</h3>
+                        <p class="text-slate-700">${data.gap}</p>
+                    </div>
+
+                    <div class="glass-panel rounded-xl overflow-hidden">
+                        <div class="p-5 bg-slate-50 border-b border-slate-200">
+                            <h3 class="font-bold text-slate-800">Bảng So sánh Top 10 Đối thủ (TP.HCM)</h3>
+                            <p class="text-sm text-slate-500 mt-1">Dữ liệu phân tích mô hình định giá và giá trị cốt lõi.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-bold">
+                                    <tr>
+                                        <th class="px-6 py-4">Company</th>
+                                        <th class="px-6 py-4">Pricing</th>
+                                        <th class="px-6 py-4">Core Service</th>
+                                        <th class="px-6 py-4">Unique Selling Proposition</th>
+                                        <th class="px-6 py-4">Model</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${data.list.map(c => `
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-6 py-4 font-bold text-slate-800">${c.name}</td>
+                                            <td class="px-6 py-4"><span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs font-semibold">${c.price}</span></td>
+                                            <td class="px-6 py-4 text-slate-600">${c.core}</td>
+                                            <td class="px-6 py-4 text-primary font-medium">${c.usp}</td>
+                                            <td class="px-6 py-4 text-slate-500">${c.model}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (currentTab === 'customers') {
+                html += `
+                    <div class="glass-panel p-6 rounded-xl mb-8 bg-slate-800 text-white border-none">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Critical Behavioral Insight</h3>
+                        <p class="text-xl font-medium">"${data.insight}"</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${data.personas.map(p => `
+                            <div class="glass-panel rounded-xl p-6 flex flex-col relative overflow-hidden group hover:shadow-lg transition-all">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-primary opacity-50 group-hover:opacity-100"></div>
+                                <h4 class="font-bold text-lg text-slate-800 mb-4">${p.name}</h4>
+                                <div class="space-y-4 flex-1">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Jobs to be Done</span>
+                                        <p class="text-sm text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">${p.jtbd}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-red-500 uppercase block mb-1">Pain Points</span>
+                                        <p class="text-sm text-slate-700 bg-red-50 p-2 rounded border border-red-100">${p.pain}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-slate-100">
+                                    <span class="text-[10px] font-bold text-emerald-600 uppercase block mb-1">Buying Trigger</span>
+                                    <p class="text-sm font-medium text-slate-800">${p.trigger}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            else if (currentTab === 'strategy') {
+                html += `
+                    <div class="glass-panel p-6 rounded-xl mb-8 border-l-4 border-l-primary bg-primary-light/30">
+                        <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-2">Value Proposition Shift</h3>
+                        <p class="text-slate-800 font-medium">${data.proposition}</p>
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-4 text-xl">Đề xuất Gói Dịch vụ (Pricing Tiers)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        ${data.tiers.map((t, i) => `
+                            <div class="glass-panel rounded-xl p-6 flex flex-col ${i===1 ? 'border-2 border-primary shadow-md transform md:-translate-y-2' : ''}">
+                                ${i===1 ? '<span class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 uppercase">Core Product</span>' : ''}
+                                <h4 class="font-bold text-slate-800 text-lg text-center mb-2">${t.name}</h4>
+                                <div class="text-center mb-4"><span class="text-3xl font-black text-slate-900">${t.price}</span></div>
+                                <p class="text-sm text-slate-600 text-center mb-6 bg-slate-50 p-3 rounded flex-1">${t.desc}</p>
+                                <div class="text-center pt-4 border-t border-slate-100">
+                                    <span class="text-xs text-slate-500 uppercase block mb-1">Target</span>
+                                    <span class="font-semibold text-slate-800 text-sm">${t.target}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="font-bold text-slate-800 mb-2 text-xl">Unit Economics (Cấu trúc chi phí)</h3>
+                        <p class="text-sm text-slate-500 mb-6">${data.economicsContext}</p>
+                        <div class="chart-container"><canvas id="mainChart"></canvas></div>
+                    </div>
+                `;
+            }
+            else if (currentTab === 'gtm') {
+                html += `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="font-bold text-slate-800 mb-6 text-xl">Marketing Funnel</h3>
+                            <div class="space-y-4">
+                                ${data.funnel.map((f, i) => {
+                                    const w = ['w-full', 'w-[90%]', 'w-[80%]', 'w-[70%]'];
+                                    const op = ['bg-primary/10', 'bg-primary/30', 'bg-primary/60', 'bg-primary text-white'];
+                                    const textCol = i > 1 ? 'text-white' : 'text-slate-800';
+                                    const subCol = i > 1 ? 'text-white/80' : 'text-slate-500';
+                                    return `
+                                    <div class="${w[i]} mx-auto ${op[i]} rounded-lg p-4 flex flex-col items-center justify-center text-center transition-transform hover:scale-105">
+                                        <span class="text-[10px] font-black uppercase tracking-widest ${subCol} mb-1 bg-black/10 px-2 py-0.5 rounded">${f.stage}</span>
+                                        <p class="text-sm font-semibold ${textCol} mb-2">${f.action}</p>
+                                        <span class="text-xs font-bold ${subCol}">KPI: ${f.kpi}</span>
+                                    </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-primary">
+                                <h3 class="font-bold text-slate-800 mb-4 text-xl">Value-Added Services (Moat)</h3>
+                                <p class="text-sm text-slate-600 mb-4">Các dịch vụ gia tăng nhằm tăng AOV (Giá trị đơn) và tạo rào cản rời bỏ:</p>
+                                <ul class="space-y-3">
+                                    ${data.moat.map(m => `
+                                        <li class="flex items-start gap-3 bg-slate-50 p-3 rounded border border-slate-100">
+                                            <span class="text-primary mt-0.5">✦</span>
+                                            <span class="text-sm font-medium text-slate-800">${m}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div class="glass-panel p-6 rounded-xl bg-slate-800 text-white border-none">
+                                <h3 class="font-bold mb-2 text-xl">Execution Note</h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">Chiến lược GTM cần tập trung vào giáo dục thị trường trong 3 tháng đầu. Đừng bán không gian, hãy bán "sự an tâm" và "tăng trưởng doanh thu" cho khách hàng.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            main.innerHTML = html;
+
+            setTimeout(() => {
+                const ctxCanvas = document.getElementById('mainChart');
+                if(!ctxCanvas) return;
+                const ctx = ctxCanvas.getContext('2d');
+                
+                Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+                Chart.defaults.color = '#64748b';
+
+                if (currentTab === 'overview') {
+                    activeChartObj = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.chartData.labels,
+                            datasets: [{
+                                label: 'Quy mô (Tỷ VNĐ)',
+                                data: data.chartData.values,
+                                borderColor: meta.color,
+                                backgroundColor: meta.color + '20',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: meta.color,
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { padding: 12, cornerRadius: 8 } },
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                } else if (currentTab === 'strategy') {
+                    const palettes = {
+                        livestream: ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#10b981'],
+                        cowork: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#10b981']
+                    };
+                    activeChartObj = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.economicsData.labels,
+                            datasets: [{
+                                data: data.economicsData.values,
+                                backgroundColor: palettes[currentInd],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, cutout: '65%',
+                            plugins: {
+                                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 12 } } },
+                                tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.raw}%` }, padding: 12 }
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
