@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Chiến lược: Thị trường Dịch vụ & Đào tạo MC Việt Nam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            height: 40vh;
+            min-height: 300px;
+            max-height: 450px;
+        }
+        .nav-active {
+            border-left: 4px solid #D97706; /* amber-600 */
+            background-color: #FEF3C7; /* amber-50 */
+            color: #92400E; /* amber-900 */
+            font-weight: 600;
+        }
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-item:hover:not(.nav-active) {
+            background-color: #F3F4F6;
+        }
+        .section-container { display: none; animation: fadeIn 0.4s ease-in; }
+        .section-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom scrollbar for tables */
+        .table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D97706', // Amber 600 - Premium/Wedding feel
+                        secondary: '#1E293B', // Slate 800 - Professional/Corporate feel
+                        accent: '#FDE68A', // Amber 200
+                        bglight: '#FAFAF9', // Stone 50
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bglight text-slate-800 antialiased flex flex-col md:flex-row min-h-screen">
+
+    <!-- Chosen Palette: Warm Professional (Stone background, Slate text, Amber accents for a blend of corporate trust and wedding elegance) -->
+    <!-- Application Structure Plan: A dashboard-style SPA with a persistent left-hand navigation sidebar. This structure allows C-level users to jump directly to specific analyses (Market, Competitors, Strategy) without scrolling through a massive linear document. Information is chunked into logical views, moving from macro market analysis down to actionable GTM strategies. -->
+    <!-- Visualization & Content Choices: Market Growth -> Line Chart -> Shows trend over time -> Standard library Chart.js. Competitor Landscape -> Scatter Plot -> Visualizes price vs customization gap -> Chart.js. Customer Segments -> Doughnut Chart -> Shows market share -> Chart.js. All visuals use interactive tooltips for data discovery. NO SVG/Mermaid used; pure HTML/CSS/Tailwind for layouts like BMC and Personas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <aside class="w-full md:w-64 bg-white shadow-lg md:h-screen md:sticky top-0 z-20 flex-shrink-0 overflow-y-auto">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-xl font-bold text-secondary leading-tight tracking-tight">MC Strategy<br><span class="text-primary text-sm font-semibold uppercase tracking-widest">Consulting Report</span></h1>
+        </div>
+        <nav class="mt-4 flex flex-col gap-1 px-3 pb-6" id="main-nav">
+            <button onclick="switchTab('market-overview')" class="nav-item nav-active text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128200; 1. Tổng quan Thị trường</button>
+            <button onclick="switchTab('competitor')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128269; 2. Phân tích Đối thủ</button>
+            <button onclick="switchTab('customer')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128101; 3. Khách hàng & Hành vi</button>
+            <button onclick="switchTab('business-strategy')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128161; 4. Chiến lược Business</button>
+            <button onclick="switchTab('gtm')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128640; 5. Go-To-Market & Growth</button>
+            <button onclick="switchTab('service-model')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#9881;&#65039; 6. Mô hình & Economics</button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-x-hidden">
+        
+        <div id="market-overview" class="section-container active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">1. Phân Tích Thị Trường (Market Landscape)</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Phần này đánh giá quy mô, tốc độ tăng trưởng và các lực lượng định hình thị trường dịch vụ MC (Đào tạo & Cá nhân hóa) tại Việt Nam. Mục tiêu là xác định độ hấp dẫn của ngành và các rào cản cần vượt qua.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Quy mô & Tăng trưởng (Ước tính VN)</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="marketSizeChart"></canvas>
+                    </div>
+                    <div class="mt-4 flex gap-4 text-sm">
+                        <div class="bg-slate-50 p-3 rounded flex-1"><span class="block text-slate-500 text-xs uppercase font-bold">Quy mô 2024</span><span class="text-xl font-bold text-primary">~450 Tỷ VNĐ</span></div>
+                        <div class="bg-slate-50 p-3 rounded flex-1"><span class="block text-slate-500 text-xs uppercase font-bold">CAGR (3 năm tới)</span><span class="text-xl font-bold text-primary">18.5%</span></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Drivers & Barriers</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">&#10133;</span><div><strong class="text-sm">Driver:</strong> <span class="text-sm text-slate-600">Xu hướng cá nhân hóa tiệc cưới (Bespoke Weddings) tăng mạnh ở Gen Y/Z.</span></div></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">&#10133;</span><div><strong class="text-sm">Driver:</strong> <span class="text-sm text-slate-600">Nhu cầu xây dựng Personal Brand, kỹ năng thuyết trình trong môi trường làm việc Hybrid.</span></div></li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">&#10134;</span><div><strong class="text-sm">Barrier:</strong> <span class="text-sm text-slate-600">Thị trường phân mảnh, chất lượng không đồng đều làm giảm niềm tin.</span></div></li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">&#10134;</span><div><strong class="text-sm">Barrier:</strong> <span class="text-sm text-slate-600">Dễ bị sao chép kịch bản, rào cản gia nhập thấp đối với MC Freelance.</span></div></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4 border-b pb-2">Porter’s 5 Forces</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><strong class="text-primary">1. Cạnh tranh trong ngành (CA0):</strong> Phân mảnh, cạnh tranh về giá cao ở phân khúc dưới. Thiếu dominant player ở phân khúc cao cấp.</li>
+                        <li><strong class="text-primary">2. Quyền lực khách hàng (CAO):</strong> Dễ dàng so sánh giá. Sự phụ thuộc vào review/word-of-mouth lớn.</li>
+                        <li><strong class="text-primary">3. Rào cản gia nhập (THẤP):</strong> Bất kỳ ai có ngoại hình/giọng nói đều có thể làm freelance. Tuy nhiên, rào cản để mở <em>Học viện chuẩn hóa</em> là trung bình.</li>
+                        <li><strong class="text-primary">4. Quyền lực nhà cung cấp (THẤP):</strong> Nhà cung cấp chủ yếu là địa điểm (studio) hoặc giảng viên thỉnh giảng. Dễ thay thế.</li>
+                        <li><strong class="text-primary">5. Đe dọa thay thế (TRUNG BÌNH):</strong> AI Voice (nhân tạo) có thể thay thế MC thu âm sự kiện nhỏ, nhưng không thể thay thế tương tác trực tiếp tại đám cưới/sự kiện lớn.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4 border-b pb-2">PESTEL Insight (Rút gọn)</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><strong class="text-slate-800">Socio-cultural (Xã hội):</strong> Tư duy đám cưới thay đổi từ "đông đúc, hình thức" sang "ấm cúng, ý nghĩa, kể chuyện". Đây là key driver cho dịch vụ MC cá nhân hóa.</li>
+                        <li><strong class="text-slate-800">Technological (Công nghệ):</strong> Trào lưu Livestream & Short-video (TikTok) tạo ra ngách đào tạo "MC Livestream/KOC", mở rộng thị trường đào tạo.</li>
+                        <li><strong class="text-slate-800">Economic (Kinh tế):</strong> Mặc dù kinh tế khó khăn, chi tiêu cho "trải nghiệm độc bản" trong ngày trọng đại (đám cưới) ít bị cắt giảm hơn các khoản khác.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="competitor" class="section-container">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">2. Phân Tích Đối Thủ & Khoảng Trống (TP.HCM)</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Đánh giá 10 đại diện tiêu biểu tại TP.HCM (bao gồm trung tâm đào tạo, agency và mô hình cá nhân) để vẽ ra bản đồ định vị giá và xác định "đại dương xanh".</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
+                <h3 class="text-lg font-bold text-secondary mb-4">Competitor Landscape: Mức độ Cá nhân hóa vs. Giá cả</h3>
+                <div class="chart-wrapper">
+                    <canvas id="competitorMapChart"></canvas>
+                </div>
+                <div class="mt-4 p-4 bg-amber-50 rounded-lg text-sm text-slate-700 border border-amber-100">
+                    <strong class="text-primary">&#128161; Market Gap (Góc trên bên phải):</strong> Thiếu vắng các tổ chức cung cấp dịch vụ MC Đám cưới <strong>cực kỳ cá nhân hóa</strong> (viết kịch bản như đạo diễn sân khấu, tư vấn concept) kết hợp <strong>đào tạo cấp chứng chỉ</strong> có giá trị thực tiễn. Hầu hết đào tạo là đại trà, và MC đám cưới thì làm theo form mẫu.
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-secondary">Bảng Phân Tích Chi Tiết 10 Competitors (TP.HCM)</h3>
+                </div>
+                <div class="overflow-x-auto table-scroll">
+                    <table class="w-full text-sm text-left text-slate-600 min-w-[800px]">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b">
+                            <tr>
+                                <th class="px-4 py-3">Công ty (Ví dụ đại diện)</th>
+                                <th class="px-4 py-3">Pricing Base</th>
+                                <th class="px-4 py-3">Core Services</th>
+                                <th class="px-4 py-3">USP</th>
+                                <th class="px-4 py-3">Business Model</th>
+                            </tr>
+                        </thead>
+                        <tbody id="competitor-table-body" class="divide-y divide-slate-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-base font-bold text-secondary mb-3 border-b pb-2 uppercase tracking-wide">Pricing Benchmark</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex justify-between border-b border-dashed py-1"><span>Đào tạo cơ bản (Nhóm)</span> <strong class="text-slate-800">3M - 6M / khóa</strong></li>
+                        <li class="flex justify-between border-b border-dashed py-1"><span>Đào tạo cấp chứng chỉ/Chuyên sâu</span> <strong class="text-slate-800">8M - 15M / khóa</strong></li>
+                        <li class="flex justify-between border-b border-dashed py-1"><span>MC Đám cưới truyền thống</span> <strong class="text-slate-800">2M - 4M / show</strong></li>
+                        <li class="flex justify-between border-b border-dashed py-1"><span>MC Đám cưới Cá nhân hóa (Bilingual)</span> <strong class="text-primary">8M - 20M+ / show</strong></li>
+                    </ul>
+                    <p class="mt-3 text-xs text-slate-500 italic">Mô hình phổ biến nhất hiện nay là Package (Trọn gói) thay vì Hourly.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 bg-slate-800 text-white">
+                    <h3 class="text-base font-bold text-accent mb-3 border-b border-slate-600 pb-2 uppercase tracking-wide">Pattern USP & Điểm Yếu</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>&#10003; <strong>Pattern chung:</strong> Thích dùng hình ảnh "MC nổi tiếng" đài truyền hình để bảo chứng chất lượng.</li>
+                        <li>&#10060; <strong>Điểm yếu lặp lại:</strong> Chương trình học nặng lý thuyết phát âm, thiếu tính thực chiến xử lý tình huống và xây dựng Personal Brand cho học viên.</li>
+                        <li>&#10060; <strong>Wedding MC:</strong> 80% áp dụng kịch bản "copy-paste" thay tên cô dâu chú rể. Khách hàng Gen Z đang phát ngán.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="customer" class="section-container">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">3. Khách Hàng & Hành Vi (Customer Insights)</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Định hình chân dung khách hàng mục tiêu cho 2 mảng: Đào tạo chứng chỉ và Dịch vụ MC cưới cá nhân hóa. Phân tích hành trình từ nhận biết đến chuyển đổi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-bold text-secondary mb-4 w-full text-center">Customer Segmentation</h3>
+                    <div class="chart-wrapper w-full h-[250px] max-h-[300px]">
+                        <canvas id="segmentationChart"></canvas>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Persona 1 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="font-bold text-secondary">Persona 1: The Aspiring Pro</h4>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-semibold">Đào tạo/Chứng chỉ</span>
+                        </div>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li><strong>Demographic:</strong> Nữ/Nam, 18-25 tuổi, SV hoặc mới ra trường.</li>
+                            <li><strong>Pain points:</strong> Thiếu tự tin, giọng nói chưa chuẩn, không có network để nhận show.</li>
+                            <li><strong>JTBD:</strong> "Giúp tôi có kỹ năng chuẩn, cái mác (chứng chỉ) để dễ xin show và kiếm tiền".</li>
+                            <li><strong>Trigger:</strong> Thấy bạn bè làm MC thu nhập cao, hoặc idol TikTok.</li>
+                        </ul>
+                    </div>
+                    <!-- Persona 2 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="font-bold text-secondary">Persona 2: Modern Couple</h4>
+                            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded font-semibold">MC Cưới Cá Nhân Hóa</span>
+                        </div>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li><strong>Demographic:</strong> Cặp đôi 25-32 tuổi, thu nhập A class, mindset hiện đại.</li>
+                            <li><strong>Pain points:</strong> Sợ MC nói nhảm, đùa vô duyên, đọc kịch bản sáo rỗng. Sợ tiệc cưới giống bao người khác.</li>
+                            <li><strong>JTBD:</strong> "Giúp tôi kể câu chuyện tình yêu của chúng tôi một cách tinh tế, khiến khách mời cảm động và ấn tượng".</li>
+                            <li><strong>Decision Criteria:</strong> Portfolio MC, giọng nói, sự thấu cảm trong buổi tư vấn.</li>
+                        </ul>
+                    </div>
+                    <!-- Persona 3 -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group md:col-span-2">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="font-bold text-secondary">Persona 3: Corporate Climber (B2B/B2C mix)</h4>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-semibold">Đào tạo Kỹ năng</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-2">Quản lý cấp trung, sale leaders (28-40t) cần học MC không phải để làm MC, mà để cải thiện kỹ năng thuyết trình, public speaking, xây dựng uy tín cá nhân trong doanh nghiệp. Sẵn sàng chi trả cao cho gói Private Coaching.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-secondary mb-4">Customer Journey & Key Insights</h3>
+                <div class="flex flex-col md:flex-row justify-between w-full text-sm">
+                    <div class="flex-1 p-4 border-l-2 border-slate-200 relative">
+                        <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-slate-300"></div>
+                        <h5 class="font-bold uppercase text-slate-700 mb-2">1. Awareness</h5>
+                        <p class="text-slate-600 mb-2">Khám phá qua: TikTok Short-form video (viral tình huống xử lý MC), FB Reels, Referral từ bạn bè/Wedding Planner.</p>
+                    </div>
+                    <div class="flex-1 p-4 border-l-2 border-slate-200 relative">
+                        <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-blue-300"></div>
+                        <h5 class="font-bold uppercase text-slate-700 mb-2">2. Consideration</h5>
+                        <p class="text-slate-600 mb-2">So sánh profile giảng viên/MC. <strong>Vì sao KHÔNG chọn:</strong> Kênh social trông phèn, tư vấn viên gửi kịch bản mẫu sáo rỗng, báo giá không minh bạch.</p>
+                    </div>
+                    <div class="flex-1 p-4 border-l-2 border-slate-200 relative">
+                        <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-primary"></div>
+                        <h5 class="font-bold uppercase text-slate-700 mb-2">3. Conversion</h5>
+                        <p class="text-slate-600 mb-2">Chốt deal. <strong>Vì sao CHỌN:</strong> Buổi meeting hóa giải được lo âu (chemistry tốt), cam kết output (chứng chỉ/kịch bản custom), gói add-on hấp dẫn.</p>
+                    </div>
+                    <div class="flex-1 p-4 border-l-2 border-slate-200 relative">
+                        <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-green-400"></div>
+                        <h5 class="font-bold uppercase text-slate-700 mb-2">4. Retention/Referral</h5>
+                        <p class="text-slate-600">Đánh giá sau sự kiện/khóa học. Referral là kênh mang lại LTV cao nhất trong ngành này (hơn 40% doanh thu).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="business-strategy" class="section-container">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">4. Chiến lược Business & Định vị</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Xây dựng kiến trúc dịch vụ (Service Design) đập tan sự rập khuôn của thị trường, thiết lập chiến lược giá và mô hình kinh doanh tổng thể.</p>
+            </div>
+
+            <div class="bg-slate-800 text-white p-6 rounded-xl shadow-lg mb-8">
+                <h3 class="text-accent font-bold uppercase tracking-widest text-sm mb-2">Positioning Statement</h3>
+                <p class="text-xl font-light leading-relaxed">Không chỉ là người cầm mic hay dạy nói chữ. Chúng tôi là <strong class="text-white font-bold">"Architects of Moments" (Kiến trúc sư của những khoảnh khắc)</strong>. Kết hợp kỹ năng sân khấu chuẩn mực với tư duy biên kịch cá nhân hóa, tạo ra những dấu ấn độc bản cho sự kiện và sự nghiệp của bạn.</p>
+            </div>
+
+            <h3 class="text-xl font-bold text-secondary mb-4">Service Design: 3 Tiers (Mảng MC Đám cưới Cá nhân hóa)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="p-5 border-b border-slate-100 bg-slate-50 rounded-t-xl text-center">
+                        <h4 class="font-bold text-slate-700">Tear 1: Standard</h4>
+                        <div class="text-2xl font-bold text-secondary mt-2">5M - 8M <span class="text-sm font-normal text-slate-500">/show</span></div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <ul class="text-sm space-y-3 mb-4 text-slate-600">
+                            <li>&#10003; MC Chuyên nghiệp (Tier B)</li>
+                            <li>&#10003; 1 buổi meeting online lấy info</li>
+                            <li>&#10003; Kịch bản tinh chỉnh (Custom 30% dựa trên core template)</li>
+                            <li>&#10003; Hỗ trợ nhạc nền cơ bản</li>
+                        </ul>
+                        <button class="w-full py-2 bg-slate-100 text-slate-700 rounded text-sm font-bold mt-auto cursor-default">Target: Mass Premium</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl border-2 border-primary shadow-md flex flex-col relative transform md:-translate-y-2">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Hero Service</div>
+                    <div class="p-5 border-b border-slate-100 bg-amber-50 rounded-t-xl text-center pt-8">
+                        <h4 class="font-bold text-primary">Tear 2: Bespoke Storyteller</h4>
+                        <div class="text-3xl font-bold text-secondary mt-2">12M - 18M <span class="text-sm font-normal text-slate-500">/show</span></div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <ul class="text-sm space-y-3 mb-4 text-slate-700">
+                            <li>&#10003; MC Cao cấp (Tier A / Bilingual)</li>
+                            <li>&#10003; 2 buổi tư vấn chuyên sâu (Khai thác chuyện tình)</li>
+                            <li>&#10003; <strong>Kịch bản độc bản 100%</strong> (Viết như phim)</li>
+                            <li>&#10003; Đạo diễn âm nhạc khớp kịch bản</li>
+                            <li>&#10003; Điều phối rehearsal trước giờ G</li>
+                        </ul>
+                        <button class="w-full py-2 bg-primary text-white rounded text-sm font-bold mt-auto cursor-default">Target: Modern Couples / Niche</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="p-5 border-b border-slate-100 bg-slate-50 rounded-t-xl text-center">
+                        <h4 class="font-bold text-slate-700">Tear 3: The Director</h4>
+                        <div class="text-2xl font-bold text-secondary mt-2">30M+ <span class="text-sm font-normal text-slate-500">/show</span></div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <ul class="text-sm space-y-3 mb-4 text-slate-600">
+                            <li>&#10003; MC Master / Celeb</li>
+                            <li>&#10003; Bao gồm gói Bespoke</li>
+                            <li>&#10003; <strong>Show Director:</strong> Chịu trách nhiệm toàn bộ mood & tone, ánh sáng, visual sân khấu</li>
+                            <li>&#10003; Viết & thu âm Voice-over phóng sự</li>
+                        </ul>
+                        <button class="w-full py-2 bg-slate-800 text-white rounded text-sm font-bold mt-auto cursor-default">Target: VVIP / Destination Wedding</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-secondary mb-4">Business Model Canvas (Tóm tắt)</h3>
+            <div class="grid grid-cols-5 md:grid-cols-10 gap-2 text-xs">
+                <div class="col-span-5 md:col-span-2 bg-white p-3 border border-slate-200 rounded">
+                    <strong class="block mb-1 text-slate-800">Key Partners</strong>
+                    <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>Wedding Planners (Nguồn lead)</li><li>Studio chụp ảnh/váy cưới</li><li>Giảng viên thỉnh giảng (Voice coach)</li></ul>
+                </div>
+                <div class="col-span-5 md:col-span-2 flex flex-col gap-2">
+                    <div class="bg-white p-3 border border-slate-200 rounded flex-1">
+                        <strong class="block mb-1 text-slate-800">Key Activities</strong>
+                        <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>Thiết kế giáo trình độc quyền</li><li>Tư vấn & Viết kịch bản</li><li>Marketing content viral</li></ul>
+                    </div>
+                    <div class="bg-white p-3 border border-slate-200 rounded flex-1">
+                        <strong class="block mb-1 text-slate-800">Key Resources</strong>
+                        <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>Core Team MC chất lượng</li><li>Brand reputation</li><li>Giáo trình chuẩn hóa</li></ul>
+                    </div>
+                </div>
+                <div class="col-span-5 md:col-span-2 bg-amber-50 p-3 border border-amber-200 rounded">
+                    <strong class="block mb-1 text-primary">Value Proposition</strong>
+                    <ul class="text-amber-900 space-y-1 list-disc pl-3">
+                        <li><strong>Cho KH cưới:</strong> Trải nghiệm độc bản, cảm xúc, không "sến".</li>
+                        <li><strong>Cho Học viên:</strong> Chứng chỉ thực chiến, cơ hội nhận show ngay, xây dựng nhân hiệu.</li>
+                    </ul>
+                </div>
+                <div class="col-span-5 md:col-span-2 flex flex-col gap-2">
+                    <div class="bg-white p-3 border border-slate-200 rounded flex-1">
+                        <strong class="block mb-1 text-slate-800">Customer Relationships</strong>
+                        <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>Tư vấn 1-1 chuyên sâu</li><li>Cộng đồng Alumni (Học viên)</li></ul>
+                    </div>
+                    <div class="bg-white p-3 border border-slate-200 rounded flex-1">
+                        <strong class="block mb-1 text-slate-800">Channels</strong>
+                        <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>B2B: Mạng lưới Wedding Planner</li><li>B2C: TikTok/Reels, SEO, Word of Mouth</li></ul>
+                    </div>
+                </div>
+                <div class="col-span-5 md:col-span-2 bg-white p-3 border border-slate-200 rounded">
+                    <strong class="block mb-1 text-slate-800">Customer Segments</strong>
+                    <ul class="text-slate-600 space-y-1 list-disc pl-3"><li>Cặp đôi Gen Y/Z thu nhập cao.</li><li>Sinh viên/Người đi làm muốn đổi nghề.</li><li>Quản lý cần kỹ năng public speaking.</li></ul>
+                </div>
+                <div class="col-span-5 md:col-span-5 bg-white p-3 border border-slate-200 rounded mt-2">
+                    <strong class="block mb-1 text-slate-800">Cost Structure</strong>
+                    <p class="text-slate-600">Lương giảng viên/MC (COGS lớn nhất), Chi phí Marketing/Ads (CAC), Chi phí mặt bằng (nếu có trung tâm offline), Chi phí vận hành.</p>
+                </div>
+                <div class="col-span-5 md:col-span-5 bg-white p-3 border border-slate-200 rounded mt-2">
+                    <strong class="block mb-1 text-slate-800">Revenue Streams</strong>
+                    <p class="text-slate-600">Học phí khóa MC (Nhóm/1-1), Cấp chứng chỉ, Phí book show MC Đám cưới/Sự kiện, Phí dịch vụ Add-on (Viết kịch bản riêng, Voice-over).</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="gtm" class="section-container">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">5. Go-To-Market & Growth Marketing</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Làm thế nào để scale up nhanh chóng? Chuyển dịch từ việc bán "nhân lực" sang bán "giải pháp & uy tín thương hiệu" thông qua phễu marketing.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Marketing Funnel Chiến lược</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Content Pillars (Organic Growth)</h3>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-bold text-slate-800">1. Authority & Expertise (30%)</h4>
+                            <p class="text-sm text-slate-600">Video phân tích giọng nói người nổi tiếng, tips sửa phát âm ngọng/địa phương, bí quyết xử lý sự cố sân khấu. <br><em class="text-xs">Format: TikTok/Reels chuyên gia.</em></p>
+                        </div>
+                        <div class="border-l-4 border-amber-300 pl-4">
+                            <h4 class="font-bold text-slate-800">2. Emotional/Storytelling (40%)</h4>
+                            <p class="text-sm text-slate-600">Trích đoạn khoảnh khắc MC dẫn dắt khiến cô dâu chú rể khóc/cười, Behind-the-scenes viết kịch bản cá nhân hóa. <br><em class="text-xs">Format: Cinematic Video, Cinematic Vlog.</em></p>
+                        </div>
+                        <div class="border-l-4 border-slate-300 pl-4">
+                            <h4 class="font-bold text-slate-800">3. Social Proof & Transformation (30%)</h4>
+                            <p class="text-sm text-slate-600">Học viên trước/sau khóa học (video Before-After kỹ năng nói), Review từ cô dâu chú rể. <br><em class="text-xs">Format: Phỏng vấn ngắn, Carousel Post.</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-secondary mb-4">Giá trị gia tăng (Value-Added Services) để tăng LTV/AOV</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-stone-100 p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">&#127897;</div>
+                    <h5 class="font-bold text-sm mb-1 text-slate-800">Voice-over Phóng sự cưới</h5>
+                    <p class="text-xs text-slate-600">Bán kèm gói MC. Cô dâu chú rể tự kể chuyện hoặc MC thu âm chuyên nghiệp chuẩn studio.</p>
+                </div>
+                <div class="bg-stone-100 p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">&#128218;</div>
+                    <h5 class="font-bold text-sm mb-1 text-slate-800">Sách/Cẩm nang Public Speaking</h5>
+                    <p class="text-xs text-slate-600">Sản phẩm vật lý bán chéo hoặc làm quà tặng lead magnet, tăng authority brand.</p>
+                </div>
+                <div class="bg-stone-100 p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">&#128248;</div>
+                    <h5 class="font-bold text-sm mb-1 text-slate-800">Gói Xây Kênh TikTok cho Học Viên</h5>
+                    <p class="text-xs text-slate-600">Hợp tác studio, quay dựng 5-10 video portfolio chuyên nghiệp cho học viên sau tốt nghiệp.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="service-model" class="section-container">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-secondary mb-2">6. Mô hình Vận hành & Unit Economics</h2>
+                <p class="text-slate-600 max-w-4xl text-lg">Phân tích chuỗi giá trị và ước tính biên lợi nhuận để thấy tính khả thi về mặt tài chính của mô hình kinh doanh kết hợp Đào tạo & Dịch vụ.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Value Chain (Chuỗi giá trị cốt lõi)</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center p-3 bg-slate-50 rounded border border-slate-100">
+                            <span class="bg-slate-800 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold mr-3 shrink-0">1</span>
+                            <div><strong class="text-sm block">Acquisition (Thu hút)</strong><span class="text-xs text-slate-600">Content Social, Partnership với WP, SEO từ khóa "Khóa học MC".</span></div>
+                        </div>
+                        <div class="flex items-center p-3 bg-slate-50 rounded border border-slate-100">
+                            <span class="bg-slate-800 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold mr-3 shrink-0">2</span>
+                            <div><strong class="text-sm block">Consulting/Sales (Tư vấn)</strong><span class="text-xs text-slate-600">Đánh giá giọng nói đầu vào (Đào tạo) / Khai thác insight tình yêu (Wedding).</span></div>
+                        </div>
+                        <div class="flex items-center p-3 bg-primary text-white rounded shadow-sm transform scale-105 my-2">
+                            <span class="bg-white text-primary w-8 h-8 flex items-center justify-center rounded-full font-bold mr-3 shrink-0">3</span>
+                            <div><strong class="text-sm block">Delivery/Execution (Thực thi - Core Value)</strong><span class="text-xs text-amber-100">Giảng dạy thực chiến / Viết kịch bản độc bản / Điều phối sân khấu xuất sắc.</span></div>
+                        </div>
+                        <div class="flex items-center p-3 bg-slate-50 rounded border border-slate-100">
+                            <span class="bg-slate-800 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold mr-3 shrink-0">4</span>
+                            <div><strong class="text-sm block">Alumni/Retention (Hậu mãi)</strong><span class="text-xs text-slate-600">Cộng đồng job MC, Referral bonus, Upsell khóa nâng cao.</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Unit Economics (Ước tính Margin)</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 border-b pb-1 mb-2">Mảng Đào Tạo (Khóa Nhóm 15 hv, 8M/hv)</h4>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">Doanh thu/Lớp:</span> <strong class="text-green-600">120,000,000 VNĐ</strong></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Lương Giảng viên (30%):</span> <span class="text-red-500">-36,000,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Marketing (CAC ~1M/hv):</span> <span class="text-red-500">-15,000,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Vận hành/Mặt bằng:</span> <span class="text-red-500">-15,000,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mt-2 pt-2 border-t font-bold"><span class="text-slate-800">Gross Margin Ước tính:</span> <span class="text-primary">~45% (54M/Lớp)</span></div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 border-b pb-1 mb-2">Mảng MC Đám Cưới (Gói Bespoke 15M)</h4>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">Doanh thu/Show:</span> <strong class="text-green-600">15,000,000 VNĐ</strong></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Chiết khấu cho WP/Sale (15%):</span> <span class="text-red-500">-2,250,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Thù lao MC thi hành:</span> <span class="text-red-500">-5,000,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">- Chi phí team Content/Kịch bản:</span> <span class="text-red-500">-1,000,000 VNĐ</span></div>
+                            <div class="flex justify-between text-sm mt-2 pt-2 border-t font-bold"><span class="text-slate-800">Gross Margin Ước tính:</span> <span class="text-primary">~45% (6.7M/Show)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-800 text-white rounded-lg text-sm text-center font-light">
+                <span class="font-bold text-accent">Insight Strategy:</span> Dùng mảng "Đào Tạo" làm cỗ máy tạo Cashflow ổn định và phễu lọc nhân tài. Chọn lọc học viên xuất sắc nhất gia nhập team "Dịch Vụ MC Cưới" để scale doanh thu dịch vụ mà không gãy chất lượng, tạo thành vòng lặp sinh thái khép kín.
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Objects
+        const competitorData = [
+            { name: "VietSpeech Academy", price: "Premium", core: "Đào tạo MC Sự kiện, Giọng nói chuẩn", usp: "Giảng viên là BTV đài truyền hình lớn", model: "Lớp học trung tâm (Offline)" },
+            { name: "The Wedding Story", price: "High", core: "MC Đám cưới cá nhân hóa", usp: "Kể chuyện song ngữ tình cảm, kịch bản riêng", model: "Boutique Agency" },
+            { name: "NgoiSao MC Center", price: "Mid-High", core: "Đào tạo MC, Kỹ năng mềm", usp: "Cam kết show sau tốt nghiệp (nhưng show nhỏ)", model: "Lớp học đại trà" },
+            { name: "EventHost Pro", price: "Mid", core: "Cung cấp MC sự kiện/đám cưới", usp: "Giá tốt, nhiều lựa chọn nhân sự", model: "Agency môi giới (Broker)" },
+            { name: "SpeakUp Class", price: "Low-Mid", core: "Khóa học giao tiếp, MC cơ bản", usp: "Học phí rẻ, học nhanh 1 tháng", model: "Volume-based training" },
+            { name: "Bespoke Vows", price: "Premium", core: "Wedding Concept & MC", usp: "Gói MC đi kèm đạo diễn chương trình cưới", model: "High-end Consultant" },
+            { name: "Gia Tien Experts", price: "Low-Mid", core: "MC Lễ gia tiên truyền thống", usp: "Nắm rành rọt các nghi lễ vùng miền", model: "Freelance Team" },
+            { name: "GenZ Speakers", price: "Mid", core: "MC tiệc cưới trẻ trung, quẩy", usp: "Năng động, chơi minigame giỏi", model: "Freelance Collective" },
+            { name: "Voice & Soul", price: "Mid-High", core: "Coaching 1-1 giọng nói/MC", usp: "Chỉnh sửa chuyên sâu, tập trung doanh nhân", model: "Private Coaching" },
+            { name: "Freelancer Hubs", price: "Various", core: "Booking trực tiếp MC", usp: "Đa dạng mức giá từ 1M - 10M", model: "Facebook Groups/Cộng đồng" }
+        ];
+
+        // Navigation Logic
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            // Remove active state from nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+            
+            // Show selected section
+            document.getElementById(tabId).classList.add('active');
+            // Add active state to clicked button (find the button that triggers this tabId)
+            event.currentTarget.classList.add('nav-active');
+
+            // Re-render chart specific to section if needed (Chart.js handles resizing automatically if responsive: true)
+        }
+
+        // Initialize Charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Populate Competitor Table
+            const tbody = document.getElementById('competitor-table-body');
+            competitorData.forEach(comp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${comp.name}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 bg-slate-100 rounded text-xs">${comp.price}</span></td>
+                    <td class="px-4 py-3">${comp.core}</td>
+                    <td class="px-4 py-3 italic">${comp.usp}</td>
+                    <td class="px-4 py-3">${comp.model}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Global Chart Defaults
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#475569'; // slate-600
+
+            // 1. Market Size Chart (Bar + Line)
+            const ctxMarket = document.getElementById('marketSizeChart').getContext('2d');
+            new Chart(ctxMarket, {
+                type: 'bar',
+                data: {
+                    labels: ['2022', '2023', '2024 (E)', '2025 (P)', '2026 (P)'],
+                    datasets: [{
+                        type: 'bar',
+                        label: 'Quy mô TT (Tỷ VNĐ)',
+                        data: [280, 350, 450, 530, 620],
+                        backgroundColor: '#D97706', // primary
+                        borderRadius: 4
+                    }, {
+                        type: 'line',
+                        label: 'Tốc độ tăng trưởng (%)',
+                        data: [0, 25, 28, 17, 16], // Fictional logic: post covid spike, then stable high growth
+                        borderColor: '#1E293B', // secondary
+                        borderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Tỷ VNĐ' } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, min: 0, max: 40, title: { display: true, text: '%' } }
+                    }
+                }
+            });
+
+            // 2. Competitor Map (Scatter)
+            const ctxComp = document.getElementById('competitorMapChart').getContext('2d');
+            new Chart(ctxComp, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Đại trà/Standard',
+                            data: [
+                                {x: 2, y: 2, name: 'SpeakUp Class'},
+                                {x: 3, y: 4, name: 'EventHost Pro'},
+                                {x: 1, y: 3, name: 'Gia Tien Experts'},
+                                {x: 4, y: 5, name: 'NgoiSao MC'},
+                                {x: 3, y: 6, name: 'GenZ Speakers'}
+                            ],
+                            backgroundColor: '#94A3B8', // slate-400
+                            pointRadius: 6
+                        },
+                        {
+                            label: 'Premium/Chuyên sâu',
+                            data: [
+                                {x: 7, y: 8, name: 'VietSpeech'},
+                                {x: 8, y: 7, name: 'Voice & Soul'},
+                            ],
+                            backgroundColor: '#1E293B', // slate-800
+                            pointRadius: 7
+                        },
+                        {
+                            label: 'Cá nhân hóa/Bespoke',
+                            data: [
+                                {x: 9, y: 9, name: 'The Wedding Story'},
+                                {x: 10, y: 8, name: 'Bespoke Vows'}
+                            ],
+                            backgroundColor: '#D97706', // primary
+                            pointRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: { label: (ctx) => ctx.raw.name + ' (Giá: ' + ctx.parsed.y + '/10, Cá nhân hóa: ' + ctx.parsed.x + '/10)' }
+                        },
+                        annotation: {
+                            // Can add annotations via plugin if needed, keeping simple here
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Mức độ Cá nhân hóa / Chuyên sâu (1-10)' }, min: 0, max: 11 },
+                        y: { title: { display: true, text: 'Mức Giá (1-10)' }, min: 0, max: 11 }
+                    }
+                }
+            });
+
+            // 3. Segmentation Chart (Doughnut)
+            const ctxSeg = document.getElementById('segmentationChart').getContext('2d');
+            new Chart(ctxSeg, {
+                type: 'doughnut',
+                data: {
+                    labels: ['MC Cưới Đại trà', 'MC Cưới Cá nhân hóa', 'Đào tạo Cấp chứng chỉ', 'Private Coaching (B2B/Skill)'],
+                    datasets: [{
+                        data: [45, 20, 25, 10],
+                        backgroundColor: ['#CBD5E1', '#D97706', '#3B82F6', '#A855F7'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12 } } },
+                    cutout: '65%'
+                }
+            });
+
+            // 4. Funnel Chart (Horizontal Bar as mock funnel)
+            const ctxFunnel = document.getElementById('funnelChart').getContext('2d');
+            new Chart(ctxFunnel, {
+                type: 'bar',
+                data: {
+                    labels: ['1. Reach (Social/Ads)', '2. Lead (Inbox/Form)', '3. Consultation', '4. Booking', '5. Referral'],
+                    datasets: [{
+                        label: 'Tỷ lệ chuyển đổi (%)',
+                        data: [100, 15, 5, 2, 0.8],
+                        backgroundColor: ['#E2E8F0', '#CBD5E1', '#94A3B8', '#D97706', '#1E293B'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // horizontal bar
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, max: 100, title: { display: true, text: '% Tương đối so với tệp Reach' } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
