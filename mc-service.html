@@ -56,15 +56,6 @@
     </script>
 </head>
 <body class="bg-bglight text-slate-800 antialiased flex flex-col md:flex-row min-h-screen">
-      <header class="glass-panel z-20 shrink-0 border-b border-slate-200">
-        <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                <button id="btn-live" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 bg-white shadow text-slate-800">🎥 Studio Livestream</button>
-                <button id="btn-cowork" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800">🏢 Co-working Space</button>
-                 <button id="btn-mc" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800" onclick="window.location.href='https://thanhvuphi.github.io/mc-service.html';">🎤 MC Service</button>
-            </div>
-        </div>
-    </header>
-
     <!-- Chosen Palette: Warm Professional (Stone background, Slate text, Amber accents for a blend of corporate trust and wedding elegance) -->
     <!-- Application Structure Plan: A dashboard-style SPA with a persistent left-hand navigation sidebar. This structure allows C-level users to jump directly to specific analyses (Market, Competitors, Strategy) without scrolling through a massive linear document. Information is chunked into logical views, moving from macro market analysis down to actionable GTM strategies. -->
     <!-- Visualization & Content Choices: Market Growth -> Line Chart -> Shows trend over time -> Standard library Chart.js. Competitor Landscape -> Scatter Plot -> Visualizes price vs customization gap -> Chart.js. Customer Segments -> Doughnut Chart -> Shows market share -> Chart.js. All visuals use interactive tooltips for data discovery. NO SVG/Mermaid used; pure HTML/CSS/Tailwind for layouts like BMC and Personas. -->
@@ -81,6 +72,10 @@
             <button onclick="switchTab('business-strategy')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128161; 4. Chiến lược Business</button>
             <button onclick="switchTab('gtm')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#128640; 5. Go-To-Market & Growth</button>
             <button onclick="switchTab('service-model')" class="nav-item text-left px-4 py-3 rounded-lg text-sm text-slate-600 block w-full">&#9881;&#65039; 6. Mô hình & Economics</button>
+            </br>
+            -------------------------------------
+            <button id="btn-live" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 bg-white shadow text-slate-800">🎥 Studio Livestream</button>
+           <button id="btn-cowork" class="px-4 py-1.5 text-sm font-semibold rounded-md transition-all duration-300 text-slate-500 hover:text-slate-800">🏢 Co-working Space</button>
         </nav>
     </aside>
 
