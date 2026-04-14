@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vietnam Dental Aesthetic Market Intelligence 2024</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals with Professional Accents (Navy, Deep Orange, Teal) -->
+    <!-- Application Structure Plan: Dashboard layout with sticky sidebar navigation. 
+         Sections move from High-Level (Exec Summary) -> Market Dynamics -> Service Deep Dive (Tabs) -> 
+         Actionable Insights (Interactive Seasonality Calendar + Trends) -> Strategic Recommendations. 
+         This flow ensures the user understands the 'What', 'Why', and critically, the 'When & How' to act based on data. -->
+    <!-- Visualization & Content Choices: 
+         - Demographics: Doughnut Chart (Chart.js) to show market segmentation by age. 
+         - Service Deep Dive: Interactive Tabs to keep UI clean while providing detailed personas and barriers.
+         - Google Trends: Line Chart (Chart.js) recreating the 5-year search interest pattern.
+         - Monthly Tactics: Interactive Grid. Clicking a month reveals specific marketing actions based on the seasonality data.
+         - NO SVG / NO MERMAID used. Icons are Unicode or HTML/CSS shapes. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b', // Navy accent
+                            900: '#0f172a',
+                        },
+                        accent: {
+                            orange: '#ea580c', // Growth indicator
+                            teal: '#0d9488',   // Opportunity indicator
+                            blue: '#2563eb'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #fafaf9; /* Warm off-white */ }
+        
+        /* Chart Container Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .chart-height-sm { height: 250px; max-height: 250px; }
+        .chart-height-md { height: 350px; max-height: 400px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        .tab-btn.active {
+            border-bottom: 2px solid #1e293b;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .month-btn.active {
+            background-color: #1e293b;
+            color: white;
+            border-color: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col md:flex-row min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-brand-900 text-white md:fixed h-auto md:h-screen flex flex-col z-20">
+        <div class="p-6 border-b border-gray-700">
+            <h1 class="text-xl font-bold tracking-tight">Market Intelligence</h1>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider">Aesthetic Dentistry VN</p>
+        </div>
+        <ul class="flex flex-row md:flex-col p-4 gap-2 overflow-x-auto md:overflow-visible">
+            <li><a href="#exec-summary" class="block px-4 py-2 text-sm rounded hover:bg-gray-800 whitespace-nowrap">1. Executive Summary</a></li>
+            <li><a href="#market-overview" class="block px-4 py-2 text-sm rounded hover:bg-gray-800 whitespace-nowrap">2. Market Overview</a></li>
+            <li><a href="#deep-dive" class="block px-4 py-2 text-sm rounded hover:bg-gray-800 whitespace-nowrap">3. Service Deep Dive</a></li>
+            <li><a href="#seasonality" class="block px-4 py-2 text-sm rounded hover:bg-gray-800 text-accent-teal font-medium whitespace-nowrap">4. Seasonality & Tactics ✦</a></li>
+            <li><a href="#strategy" class="block px-4 py-2 text-sm rounded hover:bg-gray-800 whitespace-nowrap">5. Strategic Playbook</a></li>
+        </ul>
+        <div class="mt-auto p-6 hidden md:block">
+            <p class="text-xs text-gray-500">Generated for CEO/CMO Level Planning</p>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-4 md:p-10 w-full max-w-7xl mx-auto overflow-x-hidden">
+
+        <!-- 1. Executive Summary -->
+        <section id="exec-summary" class="mb-16 scroll-mt-20">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-brand-800">Executive Summary</h2>
+                <p class="text-gray-600 mt-2">Tổng quan chiến lược thị trường Nha khoa Thẩm mỹ Việt Nam 2024.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-accent-teal">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Trạng thái thị trường</h3>
+                    <p class="text-xl font-bold mt-2">Đang chuyển Phase (Shifting)</p>
+                    <p class="text-sm mt-2 text-gray-600">Từ "Medical Need" (chữa bệnh) sang "Lifestyle & Aesthetic" (làm đẹp, phong cách sống). Chưa bão hòa.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-accent-orange">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Growth Drivers (Động lực)</h3>
+                    <p class="text-xl font-bold mt-2">Thẩm mỹ + Công nghệ</p>
+                    <p class="text-sm mt-2 text-gray-600">Invisalign, Smile Design CAD/CAM, All-on-4 đang định hình lại kỳ vọng và mức chi trả của khách hàng.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-accent-blue">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Biggest Leverage</h3>
+                    <p class="text-xl font-bold mt-2">Seasonality + Service Mix</p>
+                    <p class="text-sm mt-2 text-gray-600">Đánh trúng điểm rơi nhu cầu (Mùa hè: Niềng, Cuối năm: Sứ/Implant) và Upsell chéo dịch vụ.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Market Overview -->
+        <section id="market-overview" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-brand-800 border-b pb-2 mb-6">Market Overview & Demographics</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                <div>
+                    <p class="mb-4">Thị trường Nha khoa Việt Nam đang phân mảnh cao (highly fragmented) nhưng xu hướng tất yếu đang dịch chuyển về các <strong>chuỗi lớn và mô hình chuyên môn hóa</strong>.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-accent-teal mr-2">◪</span>
+                            <div>
+                                <strong class="block text-gray-800">Thu nhập tầng lớp trung lưu tăng:</strong> 
+                                <span class="text-sm text-gray-600">Sẵn sàng chi trả cho các gói dịch vụ thẩm mỹ giá trị cao (High-ticket size).</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent-orange mr-2">◪</span>
+                            <div>
+                                <strong class="block text-gray-800">Hiệu ứng KOL & Social Media:</strong> 
+                                <span class="text-sm text-gray-600">Rút ngắn thời gian ra quyết định (decision-making process) đối với dịch vụ Răng Sứ.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-center font-semibold text-gray-700 mb-4">Phân khúc Khách hàng Trọng tâm</h3>
+                    <div class="chart-container chart-height-sm w-full max-w-sm mx-auto">
+                        <canvas id="demoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Demand Analysis (Deep Dive) -->
+        <section id="deep-dive" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-brand-800 border-b pb-2 mb-6">Demand Analysis by Service</h2>
+            <p class="text-sm text-gray-600 mb-6">Phân tích sâu đặc điểm khách hàng, rào cản và cơ hội cho 3 nhóm dịch vụ lõi.</p>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+                <button class="tab-btn active px-6 py-3 text-sm text-gray-500 font-medium whitespace-nowrap" onclick="switchTab('ortho')">Niềng răng (Orthodontics)</button>
+                <button class="tab-btn px-6 py-3 text-sm text-gray-500 font-medium whitespace-nowrap" onclick="switchTab('implant')">Implant (Cấy ghép)</button>
+                <button class="tab-btn px-6 py-3 text-sm text-gray-500 font-medium whitespace-nowrap" onclick="switchTab('veneer')">Răng sứ (Cosmetic)</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="tab-ortho" class="tab-content fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="text-2xl mb-2">🎓</div>
+                        <h4 class="font-bold mb-2">Customer Persona</h4>
+                        <p class="text-sm">Gen Z / Young Professionals (&lt;25 tuổi).</p>
+                        <p class="text-sm mt-2">Nhu cầu: Cải thiện thẩm mỹ, tăng tự tin giao tiếp. Chịu ảnh hưởng lớn từ trend Invisalign/Clear aligners.</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                        <h4 class="font-bold mb-2 text-accent-orange">Rào cản (Barriers)</h4>
+                        <ul class="text-sm space-y-2 text-gray-600">
+                            <li>• <strong>Giá cao:</strong> Độ nhạy cảm về giá (Price sensitivity) rất cao.</li>
+                            <li>• <strong>Thời gian dài:</strong> E ngại quá trình điều trị kéo dài 1-3 năm.</li>
+                            <li>• <strong>Đau đớn/Bất tiện:</strong> Sợ xấu trong quá trình đeo mắc cài.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-brand-900 text-white p-6 rounded-lg">
+                        <h4 class="font-bold mb-2">Strategic Role</h4>
+                        <p class="font-semibold text-lg text-accent-teal mb-1">"Entry Product" (Lead Gen)</p>
+                        <p class="text-sm text-gray-300">Dịch vụ mồi để thu hút tệp khách hàng trẻ. Lợi nhuận nằm ở việc Upsell/Cross-sell sau khi tháo niềng (Tẩy trắng, Sứ).</p>
+                        <div class="mt-4">
+                            <p class="text-xs text-gray-400 mb-1">Mức độ cạnh tranh (Saturation)</p>
+                            <div class="w-full bg-gray-700 h-2 rounded"><div class="bg-yellow-400 h-2 rounded w-3/5"></div></div>
+                            <p class="text-xs text-right mt-1">Medium</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-implant" class="tab-content hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="text-2xl mb-2">💼</div>
+                        <h4 class="font-bold mb-2">Customer Persona</h4>
+                        <p class="text-sm">Middle-aged (35-65+ tuổi) & Việt Kiều.</p>
+                        <p class="text-sm mt-2">Nhu cầu: Functional need (ăn nhai) phục hồi chức năng cơ bản. Ít nhạy cảm về giá hơn nhóm niềng răng.</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                        <h4 class="font-bold mb-2 text-accent-teal">Xu hướng (Trends)</h4>
+                        <ul class="text-sm space-y-2 text-gray-600">
+                            <li>• <strong>Phục hình toàn hàm:</strong> All-on-4 / All-on-6.</li>
+                            <li>• <strong>Medical Tourism:</strong> Khách hàng nước ngoài/Việt kiều về VN làm vì chi phí rẻ hơn đáng kể.</li>
+                            <li>• <strong>Công nghệ định vị:</strong> Trồng răng robot, máng hướng dẫn phẫu thuật.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-brand-900 text-white p-6 rounded-lg">
+                        <h4 class="font-bold mb-2">Strategic Role</h4>
+                        <p class="font-semibold text-lg text-yellow-500 mb-1">"Profit Driver" (High-Ticket)</p>
+                        <p class="text-sm text-gray-300">Biên độ lợi nhuận cao. Lifetime value của khách hàng lớn. Yêu cầu Trust & Doctor Branding cực mạnh.</p>
+                        <div class="mt-4">
+                            <p class="text-xs text-gray-400 mb-1">Mức độ cạnh tranh (Saturation)</p>
+                            <div class="w-full bg-gray-700 h-2 rounded"><div class="bg-green-400 h-2 rounded w-2/5"></div></div>
+                            <p class="text-xs text-right mt-1">Low - Medium (High Growth)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-veneer" class="tab-content hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="text-2xl mb-2">✨</div>
+                        <h4 class="font-bold mb-2">Customer Persona</h4>
+                        <p class="text-sm">Adults / Professionals (25-45 tuổi).</p>
+                        <p class="text-sm mt-2">Nhu cầu: Aesthetic-driven 100%. Muốn kết quả nhanh (Instant gratification). Chịu ảnh hưởng mạnh bởi KOLs.</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                        <h4 class="font-bold mb-2 text-accent-orange">Yếu tố quyết định</h4>
+                        <ul class="text-sm space-y-2 text-gray-600">
+                            <li>• <strong>Hình ảnh (Before/After):</strong> Động lực chốt sale chính.</li>
+                            <li>• <strong>Công nghệ:</strong> Smile Design (thiết kế nụ cười), độ chính xác CAD/CAM.</li>
+                            <li>• <strong>Chất liệu:</strong> Xu hướng dịch chuyển sang Veneer siêu mỏng bảo tồn răng thật.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-brand-900 text-white p-6 rounded-lg">
+                        <h4 class="font-bold mb-2">Strategic Role</h4>
+                        <p class="font-semibold text-lg text-blue-400 mb-1">"Cash Flow Driver"</p>
+                        <p class="text-sm text-gray-300">Dịch vụ xoay vòng vốn nhanh, biên lợi nhuận tốt. Tuy nhiên đây là cuộc chiến Branding & Marketing khốc liệt.</p>
+                        <div class="mt-4">
+                            <p class="text-xs text-gray-400 mb-1">Mức độ cạnh tranh (Saturation)</p>
+                            <div class="w-full bg-gray-700 h-2 rounded"><div class="bg-red-500 h-2 rounded w-4/5"></div></div>
+                            <p class="text-xs text-right mt-1">High (Branding Game)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Seasonality & Tactical Calendar (CRITICAL) -->
+        <section id="seasonality" class="mb-16 scroll-mt-20">
+            <div class="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-brand-800">Google Trends & Tactical Marketing Calendar</h2>
+                        <p class="text-sm text-gray-600 mt-1">Dữ liệu quan tâm 5 năm qua & Kế hoạch đánh theo điểm rơi thị trường.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 text-right">
+                        <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">CEO Insight: Timing is Everything</span>
+                    </div>
+                </div>
+
+                <!-- Google Trends Chart -->
+                <div class="mb-8">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500 mb-4">Mức độ quan tâm theo thời gian (Relative Search Volume)</h3>
+                    <div class="chart-container chart-height-md w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2 text-center">*Dữ liệu mô phỏng pattern từ Google Trends: Niềng răng (Xanh) luôn cao nhất và peak mùa hè. Sứ (Đỏ) ổn định. Implant (Vàng) tăng trưởng cuối năm.</p>
+                </div>
+
+                <!-- Interactive Calendar -->
+                <h3 class="text-sm font-semibold uppercase text-gray-500 mb-4">Chiến thuật Marketing Tương tác theo tháng</h3>
+                <p class="text-sm text-gray-600 mb-4 italic">Click vào các tháng để xem chiến lược (Actionable Tactics) tương ứng.</p>
+                
+                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-6">
+                    <!-- Months buttons generated by JS for cleaner HTML -->
+                    <button class="month-btn px-2 py-3 border rounded text-sm font-medium transition-all" data-month="jan_feb">Jan - Feb<br><span class="text-xs font-normal opacity-70">Low Season</span></button>
+                    <button class="month-btn active px-2 py-3 border rounded text-sm font-medium transition-all" data-month="mar_may">Mar - May<br><span class="text-xs font-normal opacity-70">Warming Up</span></button>
+                    <button class="month-btn px-2 py-3 border rounded text-sm font-medium transition-all" data-month="jun_aug">Jun - Aug<br><span class="text-xs font-normal opacity-70">Summer Peak</span></button>
+                    <button class="month-btn px-2 py-3 border rounded text-sm font-medium transition-all" data-month="sep_nov">Sep - Nov<br><span class="text-xs font-normal opacity-70">Steady Flow</span></button>
+                    <button class="month-btn px-2 py-3 border rounded text-sm font-medium transition-all" data-month="dec">December<br><span class="text-xs font-normal opacity-70">Year-End Peak</span></button>
+                </div>
+
+                <!-- Dynamic Content Panel -->
+                <div id="tactics-panel" class="bg-brand-50 border border-brand-100 p-6 rounded-lg min-h-[200px]">
+                    <!-- Default content filled by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Strategy Playbook -->
+        <section id="strategy" class="mb-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold text-brand-800 border-b pb-2 mb-6">Strategic Playbook (Recommendations)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Product -->
+                <div class="bg-white border-t-4 border-t-accent-teal shadow-sm p-6">
+                    <div class="text-xl font-bold text-brand-800 mb-4 flex items-center">
+                        <span class="mr-2">📦</span> Product Strategy
+                    </div>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li><strong>Tạo Combo & Bundle:</strong> Không bán dịch vụ đơn lẻ.</li>
+                        <li><span class="text-accent-teal font-semibold">↳</span> Niềng xong → Tặng/Upsell gói tẩy trắng/Sứ 2 răng cửa.</li>
+                        <li><span class="text-accent-teal font-semibold">↳</span> Implant → Bundle full package (Khám, CT Conebeam, Trụ, Răng sứ trên Implant) không phát sinh chi phí.</li>
+                    </ul>
+                </div>
+
+                <!-- Marketing -->
+                <div class="bg-white border-t-4 border-t-accent-orange shadow-sm p-6">
+                    <div class="text-xl font-bold text-brand-800 mb-4 flex items-center">
+                        <span class="mr-2">🎯</span> Marketing Channels
+                    </div>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li><strong>Niềng (Gen Z):</strong> Dồn ngân sách vào TikTok. Content: Quá trình thay đổi, thanh toán trả góp.</li>
+                        <li><strong>Sứ (Millennials):</strong> Instagram/Facebook Visuals. KOLs/Micro-influencers review chân thực. Before/After chất lượng cao.</li>
+                        <li><strong>Implant (Gen X):</strong> PR báo chí, Hội thảo offline, Doctor Branding (Sự uy tín, bằng cấp).</li>
+                    </ul>
+                </div>
+
+                <!-- Go to Market -->
+                <div class="bg-white border-t-4 border-t-accent-blue shadow-sm p-6">
+                    <div class="text-xl font-bold text-brand-800 mb-4 flex items-center">
+                        <span class="mr-2">⏱️</span> Go-to-Market Timing
+                    </div>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li><strong>Tháng 3-5:</strong> Chạy lead generation sớm cho chiến dịch mùa hè. Đẩy Sứ thẩm mỹ chuẩn bị đi du lịch.</li>
+                        <li><strong>Tháng 6-8:</strong> "Bơm" ngân sách Max cho các gói Niềng học sinh - sinh viên.</li>
+                        <li><strong>Tháng 10-12:</strong> Tung thông điệp "Thay nụ cười - Đón năm mới". Tập trung chốt deal Implant & Sứ toàn hàm.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Tab Switching Logic ---
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Remove active class from buttons
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show selected content
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Demographics Chart (Doughnut) ---
+        const ctxDemo = document.getElementById('demoChart').getContext('2d');
+        new Chart(ctxDemo, {
+            type: 'doughnut',
+            data: {
+                labels: ['<25 tuổi (Target Niềng)', '25-40 tuổi (Target Sứ)', '45+ tuổi (Target Implant)'],
+                datasets: [{
+                    data: [45, 35, 20],
+                    backgroundColor: ['#3b82f6', '#ea580c', '#0d9488'], // Blue, Orange, Teal
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Inter' } } },
+                    tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}%` } }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // --- Trends Chart (Line - Simulating Google Trends Image) ---
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        
+        // Simulating data based on the provided image shape
+        // X-axis: 5 years roughly, showing seasonality
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                        'Jan', 'Feb', 'Mar']; // 2+ years sample to show pattern
+        
+        const dataNieng = [60, 55, 65, 70, 80, 100, 95, 85, 70, 65, 60, 65,  62, 58, 68, 75, 85, 100, 98, 88, 72, 68, 65, 70, 65, 60, 70];
+        const dataSu =    [40, 35, 45, 45, 48, 50,  48, 52, 55, 50, 48, 60,  42, 38, 48, 50, 52, 55,  52, 58, 60, 55, 52, 65, 45, 40, 50];
+        const dataImplant=[15, 12, 15, 18, 20, 22,  20, 25, 28, 30, 35, 40,  18, 15, 18, 20, 22, 25,  22, 28, 30, 35, 40, 45, 20, 18, 22];
+
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Niềng Răng',
+                        data: dataNieng,
+                        borderColor: '#2563eb', // Blue
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHitRadius: 10
+                    },
+                    {
+                        label: 'Răng Sứ',
+                        data: dataSu,
+                        borderColor: '#dc2626', // Red
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHitRadius: 10
+                    },
+                    {
+                        label: 'Trồng Răng Implant',
+                        data: dataImplant,
+                        borderColor: '#ca8a04', // Yellow
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHitRadius: 10
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, font: { family: 'Inter' } } },
+                    tooltip: { font: { family: 'Inter' } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 10 } } },
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { display: false } } // Hide y ticks to abstract the 'volume'
+                }
+            }
+        });
+
+        // --- Interactive Tactical Calendar Logic ---
+        const tacticsData = {
+            'jan_feb': {
+                title: 'Tháng 1 - Tháng 2 (Tết & Sau Tết) - LOW SEASON',
+                insight: 'Nhu cầu làm đẹp giảm mạnh do chi tiêu cho Tết và tâm lý "kiêng đụng chạm" đầu năm. Quyết định thường bị trì hoãn (delay decision).',
+                focus: 'Brand Awareness & Data Collection',
+                actions: [
+                    'Chạy content giáo dục nhẹ nhàng, xây dựng uy tín thương hiệu.',
+                    'Tổ chức minigame/giveaway thu thập data khách hàng tiềm năng cho quý sau.',
+                    'Gửi lời chúc, duy trì quan hệ với khách hàng cũ (đặc biệt khách làm Implant cần tái khám).'
+                ]
+            },
+            'mar_may': {
+                title: 'Tháng 3 - Tháng 5 (Giai đoạn khởi động) - WARMING UP',
+                insight: 'Nhu cầu bắt đầu tăng trở lại. Khách hàng bắt đầu tìm hiểu Niềng răng cho con em, hoặc làm Sứ chuẩn bị cho các chuyến du lịch hè.',
+                focus: 'Push Niềng (Early bird) + Sứ',
+                actions: [
+                    'Tung các gói "Early Bird" ưu đãi niềng răng cho học sinh/sinh viên trước khi nghỉ hè.',
+                    'Đẩy mạnh content "Nụ cười rạng rỡ đón hè" cho dịch vụ Răng Sứ/Tẩy trắng.',
+                    'Bắt đầu tổ chức các hội thảo nhỏ về Implant cho người lớn tuổi.'
+                ]
+            },
+            'jun_aug': {
+                title: 'Tháng 6 - Tháng 8 (Mùa Hè) - PEAK NIỀNG RĂNG',
+                insight: 'Đỉnh điểm của dịch vụ Niềng Răng. Học sinh, sinh viên nghỉ hè có thời gian làm quen với mắc cài và đối phó với những cơn đau ban đầu.',
+                focus: 'Aggressive Sales trên Niềng Răng',
+                actions: [
+                    'Chạy Campaign lớn: "Niềng Răng Mùa Hè - Ưu Đãi HS-SV".',
+                    'Đẩy mạnh chính sách trả góp 0% (Crucial decision driver cho nhóm này).',
+                    'Content: Nhật ký niềng răng, Vlog của các bạn trẻ niềng răng tại nha khoa (TikTok là kênh chủ lực).'
+                ]
+            },
+            'sep_nov': {
+                title: 'Tháng 9 - Tháng 11 (Ổn định tài chính) - STEADY FLOW',
+                insight: 'Hết mùa tựu trường. Tài chính khách hàng bắt đầu ổn định. Nhu cầu dịch chuyển sang các dịch vụ high-ticket (chi phí cao) như Implant và Sứ toàn hàm.',
+                focus: 'Shift to Implant + Premium Sứ',
+                actions: [
+                    'Chạy campaign: "Phục hồi răng mất - Ăn nhai ngon miệng" hướng tới Implant.',
+                    'Tổ chức "Tháng tri ân" hoặc hội thảo chuyên sâu về Implant All-on-4.',
+                    'Đẩy mạnh dịch vụ Veneer mỏng nhẹ cho giới văn phòng.'
+                ]
+            },
+            'dec': {
+                title: 'Tháng 12 (Cuối năm) - YEAR-END PEAK (ALL SERVICES)',
+                insight: 'Tâm lý làm đẹp đón Tết, tổng kết cuối năm, nhận thưởng Tết. Khách hàng sẵn sàng chi trả cao để có kết quả ngay lập tức.',
+                focus: 'Smile Makeover & High-ticket Bundles',
+                actions: [
+                    'Campaign: "Thay nụ cười - Đổi vận mới đón Tết".',
+                    'Tập trung tối đa vào Răng Sứ (vì kết quả nhanh).',
+                    'Chốt sales các ca Implant đã tư vấn từ trước (đánh vào tâm lý năm mới răng mới).',
+                    'Tung các Voucher Tẩy trắng răng làm quà tặng để chéo bán dịch vụ.'
+                ]
+            }
+        };
+
+        const panel = document.getElementById('tactics-panel');
+        const monthBtns = document.querySelectorAll('.month-btn');
+
+        function updateTacticsPanel(monthKey) {
+            const data = tacticsData[monthKey];
+            let html = `
+                <div class="fade-in">
+                    <h4 class="text-lg font-bold text-brand-900 mb-2">${data.title}</h4>
+                    <p class="text-sm text-gray-700 mb-4 pb-4 border-b border-gray-200">
+                        <span class="font-semibold text-accent-orange">Market Insight:</span> ${data.insight}
+                    </p>
+                    <div class="mb-3">
+                        <span class="inline-block bg-brand-800 text-white text-xs px-2 py-1 rounded uppercase tracking-wide font-semibold">
+                            Primary Focus: ${data.focus}
+                        </span>
+                    </div>
+                    <ul class="space-y-2 mt-4">
+            `;
+            data.actions.forEach(action => {
+                html += `<li class="flex items-start text-sm text-gray-800"><span class="text-accent-teal mr-2 mt-0.5">➔</span> ${action}</li>`;
+            });
+            html += `</ul></div>`;
+            panel.innerHTML = html;
+        }
+
+        monthBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active from all
+                monthBtns.forEach(b => b.classList.remove('active'));
+                // Add active to clicked
+                this.classList.add('active');
+                // Update content
+                updateTacticsPanel(this.dataset.month);
+            });
+        });
+
+        // Initialize with Mar-May active
+        updateTacticsPanel('mar_may');
+
+    </script>
+</body>
+</html>
