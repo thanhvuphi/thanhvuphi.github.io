@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Chiến Lược: Thị Trường Nha Khoa Thẩm Mỹ & Dental Tourism - My Auris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Professional (Beige background, Deep Teal/Navy for text/accents, Soft Gold/Coral for highlights) -->
+    <!-- Application Structure Plan: A dashboard-style SPA with a persistent side/top navigation. This structure allows the executive board to quickly jump to specific areas of interest (e.g., just looking at 'Markets' or 'Strategy') without scrolling through a massive document. It groups information logically: Overview -> The "Who" & "Where" (Markets/Customers) -> The "What" (Services) -> The "How" (Strategy). -->
+    <!-- Visualization & Content Choices: 
+         1. Cost Comparison -> Bar Chart (Goal: Compare, Library: Chart.js Canvas) - Highlights the primary trigger for Dental Tourism.
+         2. Target Demographics -> Doughnut Chart (Goal: Proportions, Library: Chart.js Canvas) - Shows where to focus marketing spend.
+         3. Action Priority Matrix -> CSS Grid Matrix (Goal: Organize/Prioritize) - Visual tool for management decision making.
+         4. Service Potential -> Radar Chart (Goal: Comparison across multiple variables, Library: Chart.js) - Evaluates services based on margin, demand, and feasibility for tourists.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4; /* Light beige/warm neutral */
+            color: #1E293B; /* Slate 800 */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .nav-item.active {
+            background-color: #0F766E; /* Teal 700 */
+            color: white;
+            font-weight: 600;
+        }
+        
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item:hover:not(.active) { background-color: #E2E8F0; }
+
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-full md:w-64 bg-white shadow-lg z-10 flex flex-col h-auto md:h-full flex-shrink-0">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center md:block">
+            <div>
+                <h1 class="text-2xl font-bold text-teal-800 tracking-tight">My Auris</h1>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mt-1 font-semibold">Strategic Report 2026</p>
+            </div>
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden text-2xl focus:outline-none">☰</button>
+        </div>
+        
+        <div id="nav-links" class="hidden md:flex flex-col flex-grow py-4 overflow-y-auto">
+            <button onclick="navigate('exec-summary')" class="nav-item active text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">📊</span> Executive Summary
+            </button>
+            <button onclick="navigate('market-trends')" class="nav-item text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">📈</span> Xu hướng thị trường
+            </button>
+            <button onclick="navigate('target-markets')" class="nav-item text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">🌍</span> Thị trường Quốc tế
+            </button>
+            <button onclick="navigate('consumer-behavior')" class="nav-item text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">🧠</span> Hành vi Khách hàng
+            </button>
+            <button onclick="navigate('service-analysis')" class="nav-item text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">🦷</span> Phân tích Dịch vụ
+            </button>
+            <button onclick="navigate('strategy')" class="nav-item text-left px-6 py-3 text-sm flex items-center gap-3">
+                <span class="text-lg">🎯</span> Chiến lược & Thực thi
+            </button>
+        </div>
+        
+        <div class="p-4 border-t border-gray-100 text-xs text-gray-400 hidden md:block">
+            Prepared by Senior Strategy Consultant
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow overflow-y-auto bg-[#F8F7F4] p-4 md:p-8 relative" id="main-content">
+        <!-- Content will be injected here via JS -->
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- DATA STORE ---
+        const reportData = {
+            costComparison: {
+                labels: ['Mỹ (USA)', 'Úc (Australia)', 'Canada', 'Việt Nam (My Auris)'],
+                datasets: [
+                    {
+                        label: 'Trồng răng Implant (USD/răng)',
+                        data: [4500, 4000, 3800, 1200],
+                        backgroundColor: '#0F766E', // Teal 700
+                    },
+                    {
+                        label: 'Răng sứ Veneer (USD/răng)',
+                        data: [1500, 1200, 1100, 400],
+                        backgroundColor: '#D97706', // Amber 600
+                    }
+                ]
+            },
+            demographics: {
+                labels: ['California (Mỹ)', 'Texas (Mỹ)', 'Sydney/Melbourne (Úc)', 'Toronto (Canada)', 'Khác'],
+                datasets: [{
+                    data: [35, 15, 25, 10, 15],
+                    backgroundColor: ['#0F766E', '#14B8A6', '#D97706', '#F59E0B', '#94A3B8']
+                }]
+            },
+            serviceRadar: {
+                labels: ['Biên lợi nhuận', 'Nhu cầu VK/Khách quốc tế', 'Phù hợp làm ngắn ngày', 'Khả năng cạnh tranh giá', 'Độ khó chốt sale'],
+                datasets: [
+                    { label: 'Implant', data: [9, 9, 7, 10, 8], borderColor: '#0F766E', backgroundColor: 'rgba(15, 118, 110, 0.2)' },
+                    { label: 'Răng Sứ', data: [8, 10, 9, 8, 6], borderColor: '#D97706', backgroundColor: 'rgba(217, 119, 6, 0.2)' },
+                    { label: 'Niềng Răng', data: [7, 4, 2, 5, 5], borderColor: '#64748B', backgroundColor: 'rgba(100, 116, 139, 0.2)' }
+                ]
+            }
+        };
+
+        let currentChart = null; // To keep track and destroy previous charts
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderExecutiveSummary() {
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 1. Executive Summary</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Tóm tắt các phát hiện chiến lược quan trọng nhất, định hướng cơ hội tăng trưởng cho My Auris trong bối cảnh toàn cầu hóa y tế.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+                            <div class="text-amber-500 text-3xl mb-2">💰</div>
+                            <h3 class="font-bold text-gray-800">Cơ hội lớn nhất</h3>
+                            <p class="text-sm text-gray-600 mt-2">Chênh lệch giá <strong>60-70%</strong> so với Mỹ/Úc cho dịch vụ Implant & Sứ, tạo động lực cốt lõi cho Dental Tourism.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+                            <div class="text-teal-600 text-3xl mb-2">🎯</div>
+                            <h3 class="font-bold text-gray-800">Thị trường trọng điểm</h3>
+                            <p class="text-sm text-gray-600 mt-2"><strong>California, Texas (Mỹ)</strong> và <strong>Sydney, Melbourne (Úc)</strong>. Tập trung vào tệp Việt Kiều thế hệ 1 & 1.5.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+                            <div class="text-blue-500 text-3xl mb-2">👑</div>
+                            <h3 class="font-bold text-gray-800">Dịch vụ "Mũi nhọn"</h3>
+                            <p class="text-sm text-gray-600 mt-2"><strong>Phục hình Implant toàn hàm</strong> và <strong>Thẩm mỹ răng sứ</strong>. Đây là entry point để up-sell các dịch vụ khác.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover">
+                            <div class="text-red-500 text-3xl mb-2">⚡</div>
+                            <h3 class="font-bold text-gray-800">Xu hướng cấp bách</h3>
+                            <p class="text-sm text-gray-600 mt-2">Đóng gói <strong>"Kỳ nghỉ nha khoa" (Dental Vacation)</strong> tích hợp lưu trú, đưa đón, minh bạch chi phí ngay từ đầu.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold text-teal-800 mb-4">Kết luận Chiến lược cho Ban Lãnh Đạo</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Thị trường nha khoa trong nước đang "Red Ocean" (cạnh tranh khốc liệt về giá). Để duy trì biên lợi nhuận cao và định vị cao cấp (AB+), My Auris <strong>bắt buộc phải dịch chuyển một phần trọng tâm sang tệp khách Inbound (Việt Kiều & Người nước ngoài)</strong>. <br><br>
+                            Thay vì bán "dịch vụ y tế", My Auris cần bán <strong>"Giải pháp phục hồi nụ cười kết hợp trải nghiệm quê hương/du lịch cao cấp"</strong>. Mô hình kinh doanh cần bổ sung Affiliate Partners (Hướng dẫn viên, KOLs cộng đồng ngoại) và cấu trúc lại hệ thống tư vấn chốt sale (Sales-driven Doctors/Assistants) với hoa hồng hấp dẫn.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMarketTrends() {
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 2. Tổng quan Xu hướng Thị trường</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Phân tích sự dịch chuyển của ngành nha khoa thẩm mỹ và du lịch y tế theo các mốc thời gian, giúp My Auris chuẩn bị nguồn lực đón đầu.</p>
+                    
+                    <div class="space-y-6">
+                        <!-- Ngắn hạn -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-teal-100 text-teal-800 py-1 px-3 rounded-full text-xs font-bold uppercase">Ngắn hạn (0-12 tháng)</span>
+                                <h3 class="text-xl font-bold text-gray-800">Bùng nổ "Revenge Travel" kết hợp "Value Seeking"</h3>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-gray-700"><strong>Động lực:</strong> Lạm phát cao tại Mỹ, Âu, Úc khiến chi phí nha khoa nội địa vượt quá khả năng chi trả của tầng lớp trung lưu. Họ kết hợp về thăm quê sau dịch để làm răng.</p>
+                                    <p class="text-gray-700 mt-2"><strong>Dịch vụ hot:</strong> Răng sứ Veneer, Tẩy trắng răng, Khám tổng quát.</p>
+                                </div>
+                                <div class="bg-teal-50 p-4 rounded-lg">
+                                    <p class="font-semibold text-teal-900">💡 Ý nghĩa với My Auris:</p>
+                                    <p class="text-sm text-teal-800">Cơ hội "hái quả thấp". Cần ngay lập tức tung các gói khuyến mãi nhắm vào mùa Lễ/Tết hoặc hè khi Việt Kiều về nước. Tối ưu hóa SEO các từ khóa "làm răng tại Sài Gòn giá rẻ cho Việt Kiều".</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trung hạn -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-amber-100 text-amber-800 py-1 px-3 rounded-full text-xs font-bold uppercase">Trung hạn (1-3 năm)</span>
+                                <h3 class="text-xl font-bold text-gray-800">Kỷ nguyên Digital Dentistry & Trải nghiệm Trọn gói</h3>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-gray-700"><strong>Động lực:</strong> Khách hàng đòi hỏi xem trước kết quả (Smile Design 3D), rút ngắn thời gian điều trị (răng sứ trong ngày nhờ CAD/CAM) để kịp lịch trình du lịch.</p>
+                                    <p class="text-gray-700 mt-2"><strong>Dịch vụ hot:</strong> Implant All-on-4/6, Phục hình sứ kỹ thuật số.</p>
+                                </div>
+                                <div class="bg-amber-50 p-4 rounded-lg">
+                                    <p class="font-semibold text-amber-900">💡 Ý nghĩa với My Auris:</p>
+                                    <p class="text-sm text-amber-800">Đầu tư máy scan 3D nội nha (Trios/Itero), xưởng lab in-house hoặc đối tác chiến lược để cam kết thời gian hoàn thành siêu tốc (24-48h). Đóng gói dịch vụ: Khám online -> Sang VN làm -> Hậu mãi online.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dài hạn -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-xs font-bold uppercase">Dài hạn (3-5 năm)</span>
+                                <h3 class="text-xl font-bold text-gray-800">Bảo hiểm Xuyên biên giới & Vật liệu sinh học</h3>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-gray-700"><strong>Động lực:</strong> Sự hợp tác giữa các tập đoàn bảo hiểm quốc tế và cơ sở y tế Đông Nam Á. Khách hàng tìm kiếm vật liệu tương thích sinh học cao, ít xâm lấn nhất.</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="font-semibold text-blue-900">💡 Ý nghĩa với My Auris:</p>
+                                    <p class="text-sm text-blue-800">Bắt đầu xúc tiến hồ sơ đạt chuẩn JCI hoặc hợp tác với các công ty bảo hiểm quốc tế để trở thành "In-network provider", giải quyết bài toán thanh toán cho khách ngoại.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTargetMarkets() {
+            setTimeout(() => {
+                const ctxBar = document.getElementById('costChart').getContext('2d');
+                if(currentChart) currentChart.destroy();
+                currentChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: reportData.costComparison,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'So sánh Chi phí Trung bình (USD) - Căn nguyên của Dental Tourism' },
+                            tooltip: { mode: 'index', intersect: false }
+                        },
+                        scales: { y: { beginAtZero: true, title: { display: true, text: 'USD' } } }
+                    }
+                });
+
+                const ctxPie = document.getElementById('demoChart').getContext('2d');
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: reportData.demographics,
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { title: { display: true, text: 'Tỷ trọng Ngân sách Marketing Đề xuất theo Khu vực' } }
+                    }
+                });
+            }, 50);
+
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 3. Thị trường Quốc tế Tiềm năng</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Xác định các "mỏ vàng" để tối ưu hóa chi phí quảng cáo và thiết lập quan hệ đối tác địa phương.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                            <div class="chart-container">
+                                <canvas id="costChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                            <div class="chart-container">
+                                <canvas id="demoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-teal-50 text-teal-900">
+                                    <th class="p-4 border-b">Quốc gia</th>
+                                    <th class="p-4 border-b">Khu vực Trọng điểm</th>
+                                    <th class="p-4 border-b">Đặc điểm / Mức độ Hấp dẫn</th>
+                                    <th class="p-4 border-b">Đề xuất Entry Point</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-bold">🇺🇸 Mỹ (USA)</td>
+                                    <td class="p-4">Orange County & San Jose (CA), Houston (TX)</td>
+                                    <td class="p-4 text-sm">Thị trường số 1. Chi phí nha khoa cực đắt. Khách thường xuyên về VN dịp cuối năm. Khả năng chi trả cao.</td>
+                                    <td class="p-4"><span class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-xs font-semibold">Implant Toàn hàm</span></td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-bold">🇦🇺 Úc (Australia)</td>
+                                    <td class="p-4">Cabramatta (Sydney), Springvale (Melbourne)</td>
+                                    <td class="p-4 text-sm">Thị trường số 2. Khoảng cách địa lý gần hơn Mỹ. Nhóm người trẻ thích làm đẹp (răng sứ) cao.</td>
+                                    <td class="p-4"><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-semibold">Răng sứ thẩm mỹ</span></td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-4 font-bold">🇨🇦 Canada</td>
+                                    <td class="p-4">Toronto, Vancouver</td>
+                                    <td class="p-4 text-sm">Chăm sóc y tế công miễn phí nhưng KHÔNG bao gồm nha khoa. Thời gian chờ đợi lâu.</td>
+                                    <td class="p-4"><span class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-xs font-semibold">Implant & Bệnh lý</span></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-4 font-bold">🇸🇬 Singapore</td>
+                                    <td class="p-4">Toàn quốc (Target Expats & Locals)</td>
+                                    <td class="p-4 text-sm">Không nhắm vào Việt Kiều, nhắm vào người bản địa/Expats có thu nhập cao muốn kỳ nghỉ cuối tuần + làm đẹp rẻ.</td>
+                                    <td class="p-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">Veneer / Tẩy trắng</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderConsumerBehavior() {
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 4. Hành vi Khách hàng & Insights</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Hiểu sâu sắc tâm lý của khách hàng quốc tế để thiết kế thông điệp truyền thông chạm đúng "điểm đau" và "nút thắt".</p>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Pain Points & Barriers -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100">
+                            <h3 class="text-xl font-bold text-red-700 border-b border-red-100 pb-2 mb-4 flex items-center gap-2"><span>⚠️</span> Nỗi đau & Rào cản (Pain Points / Barriers)</h3>
+                            <ul class="space-y-4">
+                                <li class="flex gap-3">
+                                    <span class="text-red-500 font-bold">1.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Sợ bị "chặt chém" & Chi phí ẩn</p>
+                                        <p class="text-sm text-gray-600">Khách Việt Kiều sợ mang tiếng "Việt Kiều bào", lo sợ báo giá một đằng làm một nẻo.</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="text-red-500 font-bold">2.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Khủng hoảng niềm tin chất lượng</p>
+                                        <p class="text-sm text-gray-600">Lo ngại vô trùng kém lây nhiễm chéo, vật liệu "dỏm" (răng sứ Tàu), bác sĩ không có chứng chỉ quốc tế.</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="text-red-500 font-bold">3.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Bảo hành & Follow-up xuyên biên giới</p>
+                                        <p class="text-sm text-gray-600">"Nếu về Mỹ mà răng mẻ/implant rụng thì ai đền? Tôi không thể bay về VN chỉ để sửa răng."</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Triggers & Expectations -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-teal-100">
+                            <h3 class="text-xl font-bold text-teal-700 border-b border-teal-100 pb-2 mb-4 flex items-center gap-2"><span>🎯</span> Động lực & Kỳ vọng (Triggers / Expectations)</h3>
+                            <ul class="space-y-4">
+                                <li class="flex gap-3">
+                                    <span class="text-teal-500 font-bold">1.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Social Proof & Lời giới thiệu (Word of mouth)</p>
+                                        <p class="text-sm text-gray-600">Quyết định 80% dựa trên việc thấy bạn bè/người thân làm đẹp tại VN và review tốt trên các hội nhóm Facebook cộng đồng.</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="text-teal-500 font-bold">2.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Trải nghiệm "VIP" với giá "Bình dân"</p>
+                                        <p class="text-sm text-gray-600">Kỳ vọng được đón đưa tại sân bay, phòng khám sang trọng như khách sạn, được bác sĩ chăm sóc tận tình (điều hiếm có ở nước ngoài).</p>
+                                    </div>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="text-teal-500 font-bold">3.</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Chứng nhận Quốc tế (FDA/CE)</p>
+                                        <p class="text-sm text-gray-600">Họ cần thấy vật liệu (trụ Implant, phôi sứ) là hàng nhập khẩu chính hãng từ Thụy Sĩ, Mỹ, Đức để an tâm.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-teal-50 p-6 rounded-xl border border-teal-100">
+                        <p class="font-semibold text-teal-900 mb-2">💡 Ý nghĩa chiến lược Truyền thông cho My Auris:</p>
+                        <p class="text-gray-700">Thông điệp cốt lõi KHÔNG NÊN là "Nha khoa rẻ nhất". Thông điệp phải là <strong>"Chất lượng chuẩn Mỹ/Châu Âu - Chi phí Việt Nam - Trải nghiệm VIP trọn gói - Bảo hành toàn cầu (thông qua đối tác hoặc chính sách hoàn tiền)"</strong>. Mọi hình ảnh marketing phải show rõ quy trình vô trùng và hộp vật liệu nguyên tem mác.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderServiceAnalysis() {
+            setTimeout(() => {
+                const ctxRadar = document.getElementById('serviceChart').getContext('2d');
+                if(currentChart) currentChart.destroy();
+                currentChart = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: reportData.serviceRadar,
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { angleLines: { display: false }, suggestedMin: 0, suggestedMax: 10 } },
+                        plugins: { title: { display: true, text: 'Đánh giá Tiềm năng Dịch vụ cho Khách Quốc Tế (Thang điểm 10)' } }
+                    }
+                });
+            }, 50);
+
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 5. Phân tích Nhóm Dịch vụ</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Đánh giá độ phù hợp của 4 mảng dịch vụ chính đối với tệp khách hàng Inbound để phân bổ nguồn lực Sale/Marketing.</p>
+
+                    <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                        <div class="lg:col-span-1 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                             <div class="chart-container" style="height: 300px;">
+                                <canvas id="serviceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2 grid sm:grid-cols-2 gap-4">
+                            <!-- Card Sứ -->
+                            <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-amber-500 card-hover">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2">Răng Sứ Thẩm Mỹ (Veneer/Crown)</h3>
+                                <div class="text-sm text-gray-600 space-y-2">
+                                    <p><strong>Nhu cầu:</strong> Rất cao (Đặc biệt tệp nữ 30-50t, Việt Kiều Úc/Mỹ).</p>
+                                    <p><strong>Cơ hội:</strong> Định vị "Nụ cười tự nhiên, không mài nhỏ răng". Khách thích hoàn thiện nhanh (3-5 ngày).</p>
+                                    <p><strong>Rào cản:</strong> Sợ đau, sợ viêm tủy, sợ làm quá trắng (form răng sứ cũ).</p>
+                                </div>
+                            </div>
+                            <!-- Card Implant -->
+                            <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-teal-600 card-hover">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2">Trồng Răng Implant</h3>
+                                <div class="text-sm text-gray-600 space-y-2">
+                                    <p><strong>Nhu cầu:</strong> Rất cao (Tệp 45+, nam/nữ, Mỹ/Canada).</p>
+                                    <p><strong>Cơ hội:</strong> Chênh lệch giá cao nhất (tiết kiệm hàng chục ngàn đô cho All-on-4). Margin lợi nhuận cực lớn.</p>
+                                    <p><strong>Rào cản:</strong> Cần thời gian trụ tích hợp xương (thường phải bay về VN 2 lần). Cần tay nghề bác sĩ cao (niềm tin).</p>
+                                </div>
+                            </div>
+                            <!-- Card Bệnh Lý -->
+                            <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-gray-400 card-hover">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2">Điều trị Bệnh lý (Tủy, Nhổ răng)</h3>
+                                <div class="text-sm text-gray-600 space-y-2">
+                                    <p><strong>Nhu cầu:</strong> Trung bình (Thường là dịch vụ cộng thêm).</p>
+                                    <p><strong>Cơ hội:</strong> Dùng làm phễu (Free cạo vôi/nhổ răng khôn) để up-sell Sứ/Implant.</p>
+                                    <p><strong>Rào cản:</strong> Khách ít khi bay về VN CHỈ ĐỂ nhổ răng hay chữa tủy trừ khi kết hợp thăm thân.</p>
+                                </div>
+                            </div>
+                            <!-- Card Niềng -->
+                            <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-blue-400 card-hover">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2">Niềng Răng (Orthodontics)</h3>
+                                <div class="text-sm text-gray-600 space-y-2">
+                                    <p><strong>Nhu cầu:</strong> Thấp với khách du lịch, Cao với Expats ở VN lâu dài.</p>
+                                    <p><strong>Cơ hội:</strong> Niềng răng trong suốt (Invisalign) giao khay 1 lần đem về nước tự thay.</p>
+                                    <p><strong>Rào cản:</strong> Đòi hỏi tái khám định kỳ hàng tháng. Rủi ro y khoa cao nếu khách tự đeo khay sai cách ở nước ngoài.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <p class="font-semibold text-teal-900 mb-2">💡 Gợi ý Định vị Dịch vụ (Entry Point Strategy):</p>
+                        <p class="text-gray-700">Tập trung 80% ngân sách Inbound Marketing vào <strong>Implant & Răng Sứ</strong>. Đối với Implant, nên bán gói <em>"Trồng trụ tại VN, hợp tác với phòng khám tại Mỹ/Úc để gắn mão sứ giai đoạn 2"</em> nếu khách không thể bay về 2 lần. Đối với Răng sứ, nhấn mạnh vào công nghệ CAD/CAM hoàn thành trong 48h.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStrategy() {
+            return `
+                <div class="max-w-5xl mx-auto animation-fade-in pb-10">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-2">Phần 6. Chiến Lược Thực Thi & Ưu Tiên</h2>
+                    <p class="text-gray-600 mb-8 border-l-4 border-amber-500 pl-4">Kế hoạch hành động cụ thể để biến insight thành doanh thu, ứng dụng mô hình B2B2C và phân bổ nguồn lực nội bộ.</p>
+
+                    <!-- Strategic Action Pillars -->
+                    <div class="grid lg:grid-cols-2 gap-6 mb-10">
+                        
+                        <!-- Pillar 1 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-teal-700 text-white p-4">
+                                <h3 class="font-bold text-lg flex items-center gap-2"><span>🤝</span> 1. Partnership & Affiliate Strategy</h3>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Mạng lưới Công ty Du lịch / Hướng dẫn viên:</p>
+                                    <p class="text-sm text-gray-600">Xây dựng gói "B2B Commission". HDV đưa khách tour lẻ/đoàn ghé thăm khám (Free Scan 3D) -> Chốt sale -> HDV hưởng % hoa hồng hấp dẫn. (Đặc biệt tour từ Mỹ/Úc).</p>
+                                </div>
+                                <hr class="border-gray-100">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Viet Kieu Affiliate Program:</p>
+                                    <p class="text-sm text-gray-600">Biến khách hàng cũ thành Đại sứ thương hiệu. Cấp mã giới thiệu (Referral code) cho Kiều bào. Họ giới thiệu người thân về VN làm răng tại My Auris, nhận % hoa hồng hoặc credit dịch vụ.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 2 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-teal-700 text-white p-4">
+                                <h3 class="font-bold text-lg flex items-center gap-2"><span>💼</span> 2. Nội bộ: Sales-Driven Doctors</h3>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Thay đổi mô hình chốt Sale:</p>
+                                    <p class="text-sm text-gray-600">Khách ngoại cực kỳ tin tưởng "Áo Blouse". <strong>Trợ thủ và Bác sĩ phải là người tư vấn trực tiếp và chốt deal</strong> (không để sale thông thường chốt ở bước cuối với khách VIP).</p>
+                                </div>
+                                <hr class="border-gray-100">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Cơ chế hoa hồng (Incentive):</p>
+                                    <p class="text-sm text-gray-600">Xây dựng % hoa hồng cao cho Bác sĩ/Trợ thủ chốt được các ca Implant toàn hàm/Sứ toàn hàm cho khách ngoại, tạo động lực rèn luyện kỹ năng mềm, ngoại ngữ và tư duy sales y tế.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 3 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-amber-600 text-white p-4">
+                                <h3 class="font-bold text-lg flex items-center gap-2"><span>📢</span> 3. Marketing & PR Strategy</h3>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div>
+                                    <p class="font-semibold text-gray-800">PR Cộng đồng Việt Kiều (Hyper-local):</p>
+                                    <p class="text-sm text-gray-600">Booking bài PR/Phỏng vấn bác sĩ trên các báo/tạp chí uy tín với người Việt hải ngoại: báo Người Việt (Cali), VTV4, Thuy Nga Paris By Night (tài trợ chương trình), các đài radio phát thanh tiếng Việt tại Úc/Mỹ.</p>
+                                </div>
+                                <hr class="border-gray-100">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Facebook/Google Ads (Geo-Targeting):</p>
+                                    <p class="text-sm text-gray-600">Không chạy ads toàn quốc. Target thẳng vào các Zip Code có đông người Việt: Little Saigon (CA), Bellaire (TX), Cabramatta (NSW). Chạy chiến dịch "Lên kế hoạch về quê ăn Tết - Đặt lịch làm răng trước".</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 4 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-amber-600 text-white p-4">
+                                <h3 class="font-bold text-lg flex items-center gap-2"><span>✈️</span> 4. Dental Tourism Package (Sản phẩm)</h3>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div>
+                                    <p class="font-semibold text-gray-800">Đóng gói Trải nghiệm "Zero Stress":</p>
+                                    <p class="text-sm text-gray-600">Gói "Smile & Travel" bao gồm: Đón sân bay VIP -> Lưu trú KS 4-5 sao (đối tác) -> Tư vấn & Scan 3D -> Thực hiện dịch vụ (Sứ/Implant) -> City Tour bằng xe riêng/Du thuyền sông SG -> Tiễn sân bay. Mọi chi phí được báo giá 1 lần, KHÔNG PHÁT SINH.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Priority Matrix -->
+                    <h3 class="text-2xl font-bold text-teal-900 mb-4 mt-8">Ma trận Ưu tiên Hành động (Action Priority Matrix)</h3>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="grid grid-cols-2 gap-4 h-96 relative">
+                            <!-- Background Axis Labels -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                                <div class="w-full h-0.5 bg-gray-800 absolute top-1/2"></div>
+                                <div class="h-full w-0.5 bg-gray-800 absolute left-1/2"></div>
+                            </div>
+                            <div class="absolute bottom-2 right-2 text-xs font-bold text-gray-400">Dễ làm (Tính khả thi cao) ➔</div>
+                            <div class="absolute top-2 left-2 text-xs font-bold text-gray-400" style="writing-mode: vertical-rl; transform: rotate(180deg);">Tác động cao (Doanh thu) ➔</div>
+
+                            <!-- Quadrants -->
+                            <div class="border-r border-b border-gray-200 flex flex-col items-center justify-center p-4 bg-red-50/50">
+                                <span class="text-sm font-bold text-gray-500 mb-2">High Impact / Hard to do (Dài hạn)</span>
+                                <div class="bg-white text-sm p-2 shadow-sm rounded border border-gray-300 w-full text-center mb-2">Đạt chuẩn y tế Quốc tế (JCI)</div>
+                                <div class="bg-white text-sm p-2 shadow-sm rounded border border-gray-300 w-full text-center">Liên kết công ty bảo hiểm nước ngoài</div>
+                            </div>
+                            <div class="border-b border-gray-200 flex flex-col items-center justify-center p-4 bg-green-50/50">
+                                <span class="text-sm font-bold text-green-700 mb-2">QUICK WINS (LÀM NGAY - Ngắn hạn)</span>
+                                <div class="bg-white text-sm font-semibold p-2 shadow border-l-4 border-teal-500 rounded w-full text-center mb-2">Đào tạo Bác sĩ/Sale kỹ năng chốt ngoại & set up Hoa hồng</div>
+                                <div class="bg-white text-sm font-semibold p-2 shadow border-l-4 border-teal-500 rounded w-full text-center mb-2">Facebook Ads Geo-Targetting vào Little Saigon/Cabramatta</div>
+                                <div class="bg-white text-sm font-semibold p-2 shadow border-l-4 border-teal-500 rounded w-full text-center">Chương trình "Affiliate" Giới thiệu người thân</div>
+                            </div>
+                            <div class="border-r border-gray-200 flex flex-col items-center justify-center p-4 bg-gray-50/50">
+                                <span class="text-sm font-bold text-gray-400 mb-2">Low Impact / Hard to do (Bỏ qua)</span>
+                                <div class="bg-white text-sm p-2 shadow-sm rounded border border-gray-300 opacity-50 w-full text-center">Đầu tư vào thị trường không có Việt Kiều & khác biệt văn hóa lớn (Vd: Trung Đông)</div>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-4 bg-blue-50/50">
+                                <span class="text-sm font-bold text-blue-700 mb-2">Fill-ins (Trung hạn)</span>
+                                <div class="bg-white text-sm p-2 shadow border-l-4 border-blue-400 rounded w-full text-center mb-2">Ký hợp đồng đối tác với Công ty Du Lịch inbound</div>
+                                <div class="bg-white text-sm p-2 shadow border-l-4 border-blue-400 rounded w-full text-center">Đóng gói "Dental Vacation Tour" VIP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- NAVIGATION & STATE MANAGEMENT ---
+        function navigate(tabId) {
+            // Update active styling
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeBtn = document.querySelector(`button[onclick="navigate('${tabId}')"]`);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // Render content
+            const contentDiv = document.getElementById('main-content');
+            
+            // Clean up charts before unmounting DOM
+            if(currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+
+            // Hide mobile menu on click
+            document.getElementById('nav-links').classList.add('hidden');
+            document.getElementById('nav-links').classList.remove('flex');
+
+            switch(tabId) {
+                case 'exec-summary': contentDiv.innerHTML = renderExecutiveSummary(); break;
+                case 'market-trends': contentDiv.innerHTML = renderMarketTrends(); break;
+                case 'target-markets': contentDiv.innerHTML = renderTargetMarkets(); break;
+                case 'consumer-behavior': contentDiv.innerHTML = renderConsumerBehavior(); break;
+                case 'service-analysis': contentDiv.innerHTML = renderServiceAnalysis(); break;
+                case 'strategy': contentDiv.innerHTML = renderStrategy(); break;
+                default: contentDiv.innerHTML = renderExecutiveSummary();
+            }
+
+            // Scroll to top
+            contentDiv.scrollTop = 0;
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const navLinks = document.getElementById('nav-links');
+            if (navLinks.classList.contains('hidden')) {
+                navLinks.classList.remove('hidden');
+                navLinks.classList.add('flex');
+            } else {
+                navLinks.classList.add('hidden');
+                navLinks.classList.remove('flex');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            navigate('exec-summary');
+        });
+
+    </script>
+</body>
+</html>
